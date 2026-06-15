@@ -256,21 +256,3 @@ http://localhost:8000
 
 ---
 
-## 🎓 Полученные навыки
-
-В ходе разработки проекта были применены:
-
-* FastAPI
-* PostgreSQL
-* SQLAlchemy
-* Векторные базы данных
-* Embeddings
-* Retrieval-Augmented Generation (RAG)
-* Локальные LLM через Ollama
-* Разработка AI-приложений
-
----
-
-## 📜 Лицензия
-
-Проект распространяется под лицензией **MIT**.
