@@ -1,8 +1,7 @@
-from sqlalchemy import Column, DateTime, Integer, ForeignKey, String, func
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
 from backend.database.models.Base import Base
-
 
 
 class Message(Base):
@@ -13,7 +12,7 @@ class Message(Base):
     role = Column(String(50),nullable=False)
     created_at = Column(DateTime, server_default=func.now())
     chat_id = Column(
-        Integer,ForeignKey("chats.id", ondelete="CASCADE"), nullable=False
+        Integer,ForeignKey("chats.id", ondelete="CASCADE"), nullable=False,
     )
 
     chat = relationship("Chat", back_populates="message")

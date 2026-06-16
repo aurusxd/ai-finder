@@ -13,8 +13,8 @@ class DocumentChunk(Base):
     page = Column(Integer,nullable=False)
     chunk_index=Column(Integer,nullable=False)
     document_id = Column(
-        Integer,ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+        Integer,ForeignKey("documents.id", ondelete="CASCADE"), nullable=False,
     )
-    
+
     document = relationship("Document", back_populates="documentChunk")
 

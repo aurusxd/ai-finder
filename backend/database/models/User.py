@@ -1,9 +1,8 @@
-from sqlalchemy import Column, ForeignKey, Integer, DateTime, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from backend.database.models.Base import Base
-
 
 
 class User(Base):
@@ -15,7 +14,7 @@ class User(Base):
     email_address = Column(String(255), nullable=False,unique=True)
     created_at = Column(DateTime, server_default=func.now())
     document_id = Column(
-        Integer,ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+        Integer,ForeignKey("documents.id", ondelete="CASCADE"), nullable=False,
     )
 
     chat = relationship("Chat", back_populates="user")

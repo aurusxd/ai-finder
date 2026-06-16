@@ -1,8 +1,7 @@
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
 from backend.database.models.Base import Base
-
 
 
 class Chat(Base):
@@ -10,10 +9,10 @@ class Chat(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False,
     )
     message_id = Column(
-        Integer,ForeignKey("messages.id", ondelete="CASCADE"), nullable=False
+        Integer,ForeignKey("messages.id", ondelete="CASCADE"), nullable=False,
     )
 
     user = relationship("User", back_populates="chat")

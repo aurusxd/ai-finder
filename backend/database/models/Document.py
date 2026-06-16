@@ -1,8 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text,DECIMAL
+from sqlalchemy import DECIMAL, Column, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from backend.database.models.Base import Base
-
 
 
 class Document(Base):
