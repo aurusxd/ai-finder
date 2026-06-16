@@ -1,0 +1,12 @@
+[project]
+name = "ai-finder"
+version = "0.1.0"
+description = "Local AI Document Search"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+lint = [
+    "ruff>=0.15.17",
+]
