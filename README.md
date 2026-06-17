@@ -54,10 +54,11 @@
 
 ### Backend
 
-* Python 3.12+
+* Python 3.13+
 * FastAPI
 * SQLAlchemy
 * Alembic
+* pymupdf(PDF),python-docx(docx) ИЛИ LangChain (я еще не решил)
 
 ### AI и RAG
 
@@ -83,7 +84,8 @@
 
 * Docker
 * Git
-
+* uv
+* ruff
 ---
 
 ## 📂 Структура проекта
@@ -220,7 +222,8 @@ Windows:
 ### Установка зависимостей
 
 ```bash
-pip install -r requirements.txt
+pip install uv
+uv sync
 ```
 
 ### Установка моделей Ollama
@@ -233,7 +236,9 @@ ollama pull nomic-embed-text
 ### Запуск приложения
 
 ```bash
-uvicorn app.main:app --reload
+uv run uvicorn app.main:app --reload
+или (рекомендуется)
+docker compose up --build
 ```
 
 После запуска приложение будет доступно по адресу:
