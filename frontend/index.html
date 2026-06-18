@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Вход/Регистрация</title>
+</head>
+<body>
+     <div class="container">
+
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="login">Вход</button>
+            <button class="tab-btn" data-tab="register">Регистрация</button>
+        </div>
+
+        
+        <form class="form active" id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="example@mail.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="loginPassword">Пароль</label>
+                <input type="password" id="loginPassword" placeholder="Введите пароль" required>
+            </div>
+
+            <div class="error-msg" id="loginError"></div>
+
+            <button type="submit" class="btn">Войти</button>
+
+            <div class="footer-text">
+                Нет аккаунта? <a href="#" onclick="switchTab('register')">Зарегистрироваться</a>
+            </div>
+        </form>
+
+        
+        <form class="form" id="registerForm">
+            <div class="form-group">
+                <label for="regEmail">Email</label>
+                <input type="email" id="regEmail" placeholder="example@mail.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="regPassword">Пароль</label>
+                <input type="password" id="regPassword" placeholder="Придумайте пароль" required>
+            </div>
+
+            <div class="form-group">
+                <label for="regConfirmPassword">Подтвердите пароль</label>
+                <input type="password" id="regConfirmPassword" placeholder="Повторите пароль" required>
+            </div>
+
+            <div class="error-msg" id="registerError"></div>
+
+            <button type="submit" class="btn">Зарегистрироваться</button>
+
+            <div class="footer-text">
+                Уже есть аккаунт? <a href="#" onclick="switchTab('login')">Войти</a>
+            </div>
+        </form>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
