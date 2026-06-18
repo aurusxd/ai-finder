@@ -1,4 +1,6 @@
-from sqlalchemy import DECIMAL, Column, Integer, String, Text
+from datetime import datetime
+
+from sqlalchemy import DECIMAL, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from backend.database.models.base import Base
@@ -11,6 +13,12 @@ class Document(Base):
     path = Column(Text, nullable=False)
     size = Column(DECIMAL, nullable=False)
     name = Column(String(100), nullable=False)
+    uploaded_at = Column(DateTime,default=datetime.now)
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
 
-    chat = relationship("Chat", back_populates="document")
     document_chunk = relationship("DocumentChunk", back_populates="document")
+    user = relationship("User",back_populates="user_document")

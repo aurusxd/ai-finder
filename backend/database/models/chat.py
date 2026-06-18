@@ -13,11 +13,7 @@ class Chat(Base):
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    message_id = Column(
-        Integer,
-        ForeignKey("messages.id", ondelete="CASCADE"),
-        nullable=False,
-    )
+
 
     user = relationship("User", back_populates="chat")
-    message = relationship("Message", back_populates="chat")
+    message = relationship("Message", back_populates="chat_document")
