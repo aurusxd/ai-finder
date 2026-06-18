@@ -14,6 +14,5 @@ class Chat(Base):
         nullable=False,
     )
 
-
-    user = relationship("User", back_populates="chat")
-    message = relationship("Message", back_populates="chat_document")
+    user = relationship("User", back_populates="chats")
+    messages = relationship("Message", back_populates="chat")

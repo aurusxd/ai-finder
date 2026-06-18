@@ -17,5 +17,4 @@ class Message(Base):
         nullable=False,
     )
 
-    chat = relationship("Chat", back_populates="message")
-    chat_document = relationship("Message",back_populates="message")
+    chat = relationship("Chat", back_populates="messages")
