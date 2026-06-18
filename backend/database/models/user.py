@@ -14,9 +14,12 @@ class User(Base):
     email_address = Column(String(255), nullable=False, unique=True)
     created_at = Column(DateTime, server_default=func.now())
 
-    chat = relationship("Chat", back_populates="user")
-    user_document = relationship("Document",back_populates="user")
+    api_token = Column(String(50), nullable=True, unique=True)
 
+
+    chats = relationship("Chat", back_populates="user")
+    documents = relationship("Document", back_populates="user")
 
     def __repr__(self):
         return f"<User(id={self.id}, username='{self.username}', email='{self.email_address}')>"  # noqa: E501
+

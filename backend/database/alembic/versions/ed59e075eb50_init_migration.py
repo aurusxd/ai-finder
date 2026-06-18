@@ -1,8 +1,8 @@
 """init migration
 
-Revision ID: 869b7734c65d
+Revision ID: ed59e075eb50
 Revises: 
-Create Date: 2026-06-18 11:43:42.052923
+Create Date: 2026-06-18 12:16:16.240708
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '869b7734c65d'
+revision: str = 'ed59e075eb50'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,13 +27,16 @@ def upgrade() -> None:
     sa.Column('password_hash', sa.String(length=255), nullable=False),
     sa.Column('email_address', sa.String(length=255), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('api_token', sa.String(length=50), nullable=True),
     sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('api_token'),
     sa.UniqueConstraint('email_address'),
     sa.UniqueConstraint('username')
     )
     op.create_table('chats',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )

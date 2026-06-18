@@ -21,4 +21,4 @@ class Document(Base):
     )
 
     document_chunk = relationship("DocumentChunk", back_populates="document")
-    user = relationship("User",back_populates="user_document")
+    user = relationship("User",back_populates="documents")

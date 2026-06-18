@@ -1,3 +1,5 @@
+from datetime import datetime
+from decimal import Decimal
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -28,20 +30,35 @@ router = APIRouter(tags=["Document"], prefix="/documents")
 )
 async def upload_document(
     data: DocumentCreateModel,
-    current_user: Annotated[User, Depends(security.get_current_user)],
+    # current_user: Annotated[User, Depends(security.get_current_user)],
     session: Annotated[AsyncSession, Depends(provider.get_session)],
 ):
-    if await Document.get_by(owner_id=current_user.id, session=session):
+    # ВРЕМЕННО: создаем тестового пользователя
+
+
+    # Получаем первого пользователя из БД
+    result = await session.execute(select(User).limit(1))
+    current_user = result.scalar_one_or_none()
+
+    if not current_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You can create only 1 customer",
+            detail="No users in database. Please create a user first.",
         )
 
-    if customer := await document_service.upload_document(
-        current_user=current_user,
+    document = await document_service.upload_document(
+        path=data.path,
         name=data.name,
-        description=data,
+        size=Decimal(data.size) if data.size else Decimal(0),
+        uploaded_at=datetime.utcnow(),
+        user_id=current_user.id,
         session=session,
-    ):
-        return DocumentModel.model_validate(customer, from_attributes=True)
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not created")
+    )
+
+    if not document:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Not created",
+        )
+
+    return DocumentModel.model_validate(document, from_attributes=True)

@@ -2,7 +2,6 @@ from datetime import datetime
 from decimal import Decimal
 
 from backend.database.models.document import Document
-from backend.database.models.user import User
 from depends import AsyncSession, provider
 
 
@@ -10,24 +9,28 @@ class DocumentService:
     @provider.inject_session
     async def upload_document(  # noqa: PLR0913
         self,
-        current_user: User,
+        user_id: int,
         name: str,
-        file_path: str,
-        file_size: Decimal,
+        path: str,
+        size: Decimal,
         uploaded_at: datetime,
         session: AsyncSession,
+    ) -> Document | None:
+        try:
+            new_document = Document(
+                name=name,
+                path=path,
+                size=size,
+                uploaded_at=uploaded_at,
+                user_id=user_id,
+            )
 
-    ) -> Document:
-        new_document = Document(
-            name=name,
-            file_path=file_path,
-            file_size=file_size,
-            uploaded_at=uploaded_at,
-            user_id=current_user.id,
-        )
-        if new_document:
+            session.add(new_document)
             await session.commit()
+            await session.refresh(new_document)
             return new_document
-        return None
+        except Exception:
+            await session.rollback()
+            return None
 
 document_service = DocumentService()
