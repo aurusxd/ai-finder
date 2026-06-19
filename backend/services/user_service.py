@@ -1,6 +1,7 @@
 from datetime import datetime
 from hashlib import sha256
 
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -35,11 +36,22 @@ class UserService:
     async def register_user(self, user: User, session: AsyncSession) -> User | None:
         try:
             session.add(user)
+            log.info("Пользователь создан")
             await session.flush()
             await session.refresh(user)
         except SQLAlchemyError as e:
-            log.critical(e)
+            log.error("Пользователь не был зарегистрирован ", e)
             await session.rollback()
+            return None
+
+    @provider.inject_session
+    async def get_all_users(self, session: AsyncSession) -> list[User] | None:
+        try:
+            result = await session.execute(select(User).order_by(User.id))
+            log.info("Пользователи получены..")
+            return list(result.scalars().all())
+        except SQLAlchemyError as e:
+            log.exception("Пользователи не были получены ", e)
             return None
 
 

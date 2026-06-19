@@ -31,6 +31,7 @@ class DocumentService:
             session.add(new_document)
             await session.commit()
             await session.refresh(new_document)
+            log.info("Документ загружен")
             return new_document
         except SQLAlchemyError as e:
             log.critical(e)

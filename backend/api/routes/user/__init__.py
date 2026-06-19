@@ -8,11 +8,10 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database.models.user import User
-from backend.schemas.user_schema import UserCreateModel, UserModel
+from backend.log import log
+from backend.schemas.user_schema import UserCreateModel, UserModel, UserRead
 from backend.services.user_service import user_service
 from depends import provider
-
-from ....log import log  # noqa: TID252
 
 router = APIRouter(tags=["User"], prefix="/users")
 
@@ -51,3 +50,12 @@ async def register_user(
         )
     log.info("Пользователь создан")
     return UserModel.model_validate(user, from_attributes=True)
+
+
+@router.get("/users", response_model=list[UserRead])
+async def list_users() -> list[User]:
+    try:
+        return await user_service.get_all_users()
+    except Exception as e:
+        log.exception("Пользователи не были получены", e)
+        raise
