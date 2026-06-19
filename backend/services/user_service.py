@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database.models.user import User
 from backend.log import log
+from backend.schemas.user_schema import LoginRequest
 from depends import provider
 
 
@@ -53,6 +54,18 @@ class UserService:
         except SQLAlchemyError as e:
             log.exception("Пользователи не были получены ", e)
             return None
+
+    @provider.inject_session
+    async def user_login(self, session: AsyncSession, payload: LoginRequest) -> User:
+        result = await session.execute(
+            select(User).where(User.username == payload.username),
+        )
+        user = result.scalar_one_or_none()
+        if user is None or user.password_hash != hash_password(payload.password):
+            log.info("Неправильное имя или пароль")
+            return None
+        log.info("Юзер найден")
+        return user
 
 
 user_service = UserService()

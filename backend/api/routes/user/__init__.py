@@ -9,7 +9,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database.models.user import User
 from backend.log import log
-from backend.schemas.user_schema import UserCreateModel, UserModel, UserRead
+from backend.schemas.user_schema import (
+    AuthResponse,
+    LoginRequest,
+    UserCreateModel,
+    UserModel,
+    UserRead,
+)
 from backend.services.user_service import user_service
 from depends import provider
 
@@ -50,6 +56,19 @@ async def register_user(
         )
     log.info("Пользователь создан")
     return UserModel.model_validate(user, from_attributes=True)
+
+
+@router.post("/auth/login", response_model=AuthResponse)
+async def login_user(
+    payload: LoginRequest,
+) -> AuthResponse:
+    user = await user_service.user_login(payload=payload)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password",
+        )
+    return AuthResponse(message="Login successful", user=user)
 
 
 @router.get("/users", response_model=list[UserRead])
