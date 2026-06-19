@@ -1,7 +1,10 @@
 from datetime import datetime
 from decimal import Decimal
 
+from sqlalchemy.exc import SQLAlchemyError
+
 from backend.database.models.document import Document
+from backend.log import log
 from depends import AsyncSession, provider
 
 
@@ -29,8 +32,10 @@ class DocumentService:
             await session.commit()
             await session.refresh(new_document)
             return new_document
-        except Exception:
+        except SQLAlchemyError as e:
+            log.critical(e)
             await session.rollback()
             return None
+
 
 document_service = DocumentService()

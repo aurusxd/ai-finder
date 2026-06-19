@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Annotated
 
@@ -9,11 +9,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.api.security import security
 from backend.database.models.document import Document
 from backend.database.models.user import User
+from backend.log import log
 from backend.schemas.document_schema import DocumentCreateModel, DocumentModel
 from backend.services.document_service import document_service
 from depends import Provider, provider
 
 router = APIRouter(tags=["Document"], prefix="/documents")
+
 
 @router.post(
     "/",
@@ -33,14 +35,12 @@ async def upload_document(
     # current_user: Annotated[User, Depends(security.get_current_user)],
     session: Annotated[AsyncSession, Depends(provider.get_session)],
 ):
-    # ВРЕМЕННО: создаем тестового пользователя
-
-
     # Получаем первого пользователя из БД
     result = await session.execute(select(User).limit(1))
     current_user = result.scalar_one_or_none()
 
     if not current_user:
+        log.exception("Нету записей c пользователями в базе данных")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No users in database. Please create a user first.",
@@ -50,15 +50,16 @@ async def upload_document(
         path=data.path,
         name=data.name,
         size=Decimal(data.size) if data.size else Decimal(0),
-        uploaded_at=datetime.utcnow(),
+        uploaded_at=datetime.now(timezone.utc),
         user_id=current_user.id,
         session=session,
     )
 
     if not document:
+        log.exception("Документ не был загружен")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Not created",
         )
-
+    log.info("Документ загружен")
     return DocumentModel.model_validate(document, from_attributes=True)

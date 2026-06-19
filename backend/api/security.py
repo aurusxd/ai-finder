@@ -7,6 +7,7 @@ from fastapi import Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from backend.database.models.user import User
+from backend.log import log
 from depends import provider
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -54,7 +55,8 @@ class SecurityService:
                 token = decompress_token(browser_token)
                 return await self.authenticate(token)
             except Exception as e:
-                print(f"Error decoding cookie token: {e}")
+                log.exception(e)
+                raise
 
         # Проверяем Bearer токен
         if credentials and credentials.scheme.lower() == "bearer":
@@ -63,14 +65,16 @@ class SecurityService:
             # Пробуем декомпрессировать, если это сжатый токен
             try:
                 # Если токен выглядит как сжатый (короткий, нет дефисов)
-                if len(token) < 30 and "-" not in token:
+                if len(token) < 30 and "-" not in token:  # noqa: PLR2004
                     token = decompress_token(token)
-            except Exception:
-                pass  # Оставляем как есть - это обычный UUID
+            except Exception as e:
+                log.exception(e)
+                raise  # Оставляем как есть - это обычный UUID
 
             return await self.authenticate(token)
 
         raise HTTPException(
+            log.exception("Not authenticated"),
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authenticated",
         )
@@ -81,14 +85,12 @@ class SecurityService:
     ) -> User:
         """Аутентифицирует пользователя по токену"""
         try:
-            token_uuid = uuid.UUID(token)
+            uuid.UUID(token)
         except ValueError as err:
             raise HTTPException(
                 status_code=403,
                 detail="Invalid token format",
             ) from err
-
-
 
     def set_cookeis(
         self,
