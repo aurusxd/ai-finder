@@ -209,3 +209,5 @@ __marimo__/
 frontend/.firebaserc
 frontend/firebase.json
 frontend/.firebase/hosting.ZGlzdA.cache
+
+backend/logs
