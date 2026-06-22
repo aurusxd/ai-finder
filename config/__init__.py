@@ -9,5 +9,4 @@ class Config(BaseModel):
     database: DbConfig = Field(default_factory=lambda: DbConfig(**env))
 
 
-
 config = Config()

@@ -8,8 +8,9 @@ class DocumentModel(BaseModel):
     id: int
     path: str
     size: Decimal
-    name:str
+    name: str
     uploaded_at: datetime
+
 
 class DocumentCreateModel(BaseModel):
     path: str
@@ -17,4 +18,3 @@ class DocumentCreateModel(BaseModel):
     name: str
     uploaded_at: datetime
     user_id: int
-
