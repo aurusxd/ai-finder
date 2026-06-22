@@ -211,3 +211,5 @@ frontend/firebase.json
 frontend/.firebase/hosting.ZGlzdA.cache
 
 backend/logs
+
+backend/database/chroma
