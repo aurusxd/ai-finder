@@ -40,18 +40,18 @@ class DocumentService:
             return None
 
     @provider.inject_session
-    async def get_document_by_id(self, document_id: int, session: AsyncSession) -> Document:  # noqa: E501
+    async def get_document_by_id(
+        self, document_id: int, session: AsyncSession
+    ) -> Document:
         try:
-            result = await session.execute(select(Document).where(Document.id == document_id))  # noqa: E501
+            result = await session.execute(
+                select(Document).where(Document.id == document_id)
+            )
             log.info("Документ получен..")
             return list(await session.scalars(result).first())
         except SQLAlchemyError as e:
             log.exception("Документ не был получен ", e)
             return None
-
-
-
-
 
 
 document_service = DocumentService()

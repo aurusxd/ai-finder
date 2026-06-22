@@ -26,6 +26,8 @@ line-length = 88
 target-version = "py310"
 fix = true
 
+
+
 [tool.ruff.lint]
 select = [
   "A",      # flake8-builtins
@@ -69,6 +71,7 @@ select = [
   "W",      # pycodestyle warnings
   "YTT",    # yesqa
 ]
+ignore = ["COM812"]
 
 [tool.ruff.lint.isort]
 known-first-party = []
@@ -100,6 +103,8 @@ avoid-escape = true
   "PT002",   # docstring в фикстурах
   "PT003",   # названия тестов
 ]
+
+
 
 "alembic/**/*.py" = ["ALL"]  # игнорировать все в миграциях
 "**/alembic/*.py" = ["ALL"]  # альтернативный паттерн
