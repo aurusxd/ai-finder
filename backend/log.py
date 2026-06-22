@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import sys
 
@@ -12,7 +11,7 @@ class AppLogger:
 
     def __init__(  # noqa: PLR0913
         self,
-        log_dir: str = "logs",
+        log_dir: str = "backend/logs",
         log_file: str = "app.log",
         max_size: str = "5 MB",
         retention: int = 5,
@@ -122,7 +121,7 @@ def get_logger():
 
 
 log = setup_logger(
-    log_dir=os.environ.get("LOG_DIR", "logs"),
+    log_dir="backend/logs",
     log_file="app.log",
     max_size="10 MB",
     retention=5,

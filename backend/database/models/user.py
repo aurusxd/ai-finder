@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -12,15 +12,12 @@ class User(Base):
     username = Column(String(255), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     email_address = Column(String(255), nullable=False, unique=True)
-    created_at = Column(DateTime, server_default=func.now())
-    document_id = Column(
-        Integer,
-        ForeignKey("documents.id", ondelete="CASCADE"),
-        nullable=False,
-    )
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    chat = relationship("Chat", back_populates="user")
-    document = relationship("Document", back_populates="chat")
+    api_token = Column(String(50), nullable=True, unique=True)
+
+    chats = relationship("Chat", back_populates="user")
+    documents = relationship("Document", back_populates="user")
 
     def __repr__(self):
         return f"<User(id={self.id}, username='{self.username}', email='{self.email_address}')>"  # noqa: E501
