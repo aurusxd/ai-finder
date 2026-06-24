@@ -1,16 +1,8 @@
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.api.routers import create_app
-from backend.services.loader_service import loader_service
-from backend.services.vector_service import vector_service
 
 app = create_app()
-
-
-@app.on_event("startup")
-async def startup():
-    doc = await loader_service.document_loader(1)
-    await vector_service.generate_embedding(doc)
 
 
 app.add_middleware(
