@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from backend.database.models.document import Document
@@ -36,6 +37,22 @@ class DocumentService:
         except SQLAlchemyError as e:
             log.critical(e)
             await session.rollback()
+            return None
+
+    @provider.inject_session
+    async def get_document_by_id(
+        self, document_id: int, session: AsyncSession
+    ) -> Document | None:
+        try:
+            document = await session.scalar(
+                select(Document).where(Document.id == document_id)
+            )
+
+            log.info("Документ получен")
+            return document
+
+        except SQLAlchemyError:
+            log.exception("Документ не был получен")
             return None
 
 
