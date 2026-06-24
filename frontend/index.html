@@ -8,69 +8,75 @@
 </head>
 <body>
     <div class="chat-window">
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i> + Новый чат
+                </button>
+            </div>
 
-    
-    <aside class="sidebar">
-      <div class="sidebar-top">
-        <button class="new-chat-btn" id="newChatBtn">
-          <i class="fas fa-plus"></i> + Новый чат
-        </button>
-      </div>
+            <div class="sidebar-bottom">
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user" style="color: white; font-size: 20px;"></i>
+                    </div>
+                    <div class="profile-info">
+                        <span class="profile-name">Никита П.</span>
+                        <span class="profile-email">nikitapopov20021@mail.ru</span>
+                    </div>
+                    <i class="fas fa-ellipsis-v profile-icon"></i>
+                </div>
+            </div>
+        </aside>
 
-      <div class="sidebar-bottom">
-        <div class="profile-card">
-          <div class="profile-avatar">
-            <i class="fas fa-user" style="color: white; font-size: 20px;"></i>
-          </div>
-          <div class="profile-info">
-            <span class="profile-name">Никита П.</span>
-            <span class="profile-email">nikitapopov20021@mail.ru</span>
-          </div>
-          <i class="fas fa-ellipsis-v profile-icon"></i>
-        </div>
-      </div>
-    </aside>
+        <main class="main-chat">
+            <div class="chat-header">
+                <h2><i class="fas fa-comment-dots" style="margin-right: 10px; color: #1a73e8;"></i>Новый чат</h2>
+                <i class="fas fa-ellipsis-h"></i>
+            </div>
 
-    
-    <main class="main-chat">
-      
-      <div class="chat-header">
-        <h2><i class="fas fa-comment-dots" style="margin-right: 10px; color: #1a73e8;"></i>Новый чат</h2>
-        <i class="fas fa-ellipsis-h"></i>
-      </div>
+            
+            <div class="start-screen" id="startScreen">
+                <div class="start-content">
+                    <div class="logo">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h1>Начните диалог</h1>
+                    <p class="subtitle">Загрузите ваш документ и задайте вопрос</p>
+                    <div class="start-input-wrapper">
+                        <input type="text" id="startInput" placeholder="Введите запрос..." />
+                        <div class="start-actions">
+                            <button class="attach-btn" id="startAttachBtn" title="Прикрепить документ">
+                                +
+                            </button>
+                            <button class="send-btn" id="startSendBtn">
+                                ↑
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-      
-      <div class="start-screen" id="startScreen">
-        <div class="start-content">
-          <div class="logo">
-            <i class="fas fa-robot"></i>
-          </div>
-          <h1>Начните диалог</h1>
-          <p class="subtitle">Загрузите ваш документ и задайте вопрос</p>
-          <div class="start-input-wrapper">
-            <input type="text" id="startInput" placeholder="Введите запрос..." />
-            <button class="send-btn" id="startSendBtn">
-              <i class="fas fa-arrow-up"></i>
-            </button>
-          </div>
-        </div>
-      </div>
+           
+            <div class="messages-area hidden" id="messagesArea"></div>
 
-      
-      <div class="messages-area hidden" id="messagesArea"></div>
+            
+            <div class="input-area" id="chatInputArea">
+                <div class="input-wrapper">
+                    <input type="text" id="chatInput" placeholder="Введите сообщение..." />
+                    <div class="input-actions">
+                        <button class="attach-btn" id="attachBtn" title="Прикрепить документ">
+                            +
+                        </button>
+                        <button class="send-btn" id="chatSendBtn">
+                            ↑
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
-      
-      <div class="input-area" id="chatInputArea">
-        <div class="input-wrapper">
-          <input type="text" id="chatInput" placeholder="Введите сообщение..." />
-          <div class="input-actions">
-            <button><i class="fas fa-paperclip"></i></button>
-            <button class="send-btn" id="chatSendBtn"><i class="fas fa-arrow-up"></i></button>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
   <script src="script2.js"></script>
 </body>
 </html>
