@@ -23,7 +23,7 @@ router = APIRouter(tags=["message"], prefix="/messages")
         409: {"description": "Document with this name already exists"},
     },
 )
-async def generate_message_from_context(
+async def create_new_message(
     data: MessageCreateModel,
     # current_user: Annotated[User, Depends(security.get_current_user)],
 ):

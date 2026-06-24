@@ -2,6 +2,7 @@ from hashlib import sha256
 
 from fastapi import FastAPI
 
+from .routes.ai import router as ai_router
 from .routes.document import router as doc_router
 from .routes.message import router as msg_router
 from .routes.user import router as user_router
@@ -18,4 +19,5 @@ def create_app() -> FastAPI:
     app.include_router(doc_router)
     app.include_router(user_router)
     app.include_router(msg_router)
+    app.include_router(ai_router)
     return app

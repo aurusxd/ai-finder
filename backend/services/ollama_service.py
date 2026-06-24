@@ -11,7 +11,7 @@ class OlammaService:
     async def ask(self, question: str):
         return self.llm.invoke(question)
 
-    def answer_by_context(self, question: str, context: str) -> str:
+    async def answer_by_context(self, question: str, context: str) -> str:
 
         prompt = f"""
             Контекст: {context}
@@ -21,7 +21,7 @@ class OlammaService:
             Ответь только на основе контекста.
             """
 
-        response = self._model.invoke(prompt)
+        response = await self.llm.ainvoke(prompt)
 
         return response.content
 
