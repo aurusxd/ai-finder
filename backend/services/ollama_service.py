@@ -4,7 +4,7 @@ from langchain_ollama import ChatOllama
 class OlammaService:
     def __init__(self):
         self.llm = ChatOllama(
-            model="qwen2.5",
+            model="qwen3",
             temperature=0.2,
         )
 
