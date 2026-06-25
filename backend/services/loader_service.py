@@ -5,12 +5,16 @@ from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from backend.database.models.document import Document
+from backend.database.models.document_chunk import DocumentChunk
 from backend.log import log
 from backend.services.document_service import document_service as ds
+from depends import AsyncSession
 
 
 class DocumentLoader:
-    async def document_loader(self, document_id: int) -> list[Document]:
+    async def document_loader(
+        self, document_id: int, session: AsyncSession
+    ) -> list[Document]:
         """
         Принимает документ айди и возвращает чанки документа.
 
@@ -41,6 +45,17 @@ class DocumentLoader:
             )
 
             chunks = text_splitter.split_documents(docs)
+            for i, c in chunks:
+                page_number = c.metadata.get("page")
+                doc_chunk = DocumentChunk(
+                    text=c.page_content,
+                    page=page_number,
+                    chunk_index=(i + 1),
+                    document_id=document_id,
+                )
+                session.add(doc_chunk)
+                await session.flush()
+                await session.refresh(doc_chunk)
 
             log.info(f"Документ загружен и разбит на {len(chunks)} чанков")
 
