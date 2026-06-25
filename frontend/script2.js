@@ -104,7 +104,7 @@ function handleChatSend() {
 }
 
 chatSendBtn.addEventListener('click', handleChatSend);
-chatInput.addEventListener('keydown', function(e) {
+chatInput.addEventListener('keydown', function(e) {ы
     if (e.key === 'Enter') {
         e.preventDefault();
         handleChatSend();
