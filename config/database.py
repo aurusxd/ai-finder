@@ -4,10 +4,10 @@ from pydantic import BaseModel
 class DbConfig(BaseModel):
     DB_ECHO: bool = False
 
-    POSTGRES_USER: str = "postgres"
+    POSTGRES_USER: str = "ai_user"
     POSTGRES_PASSWORD: str = 123
     POSTGRES_DB: str = "ai_db"
-    POSTGRES_PORT: int = 5432
+    POSTGRES_PORT: int = 5433
     POSTGRES_HOST: str = "localhost"
 
     @property

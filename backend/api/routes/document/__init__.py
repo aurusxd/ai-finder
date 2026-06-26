@@ -12,7 +12,7 @@ from backend.database.models.user import User
 from backend.log import log
 from backend.schemas.document_schema import DocumentCreateModel, DocumentModel
 from backend.services.document_service import document_service
-from depends import Provider, provider
+from depends import provider
 
 router = APIRouter(tags=["Document"], prefix="/documents")
 

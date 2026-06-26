@@ -26,29 +26,8 @@ class EmbeddingService:
             )
             return True
         except Exception as e:  # noqa: BLE001
-            log.excpetion("Ошибка создания векторов: ", e)
+            log.exception("Ошибка создания векторов: ", e)
             return False
-
-    async def find_vectors(self: str, question: str, chunk_size: int) -> list[Document]:
-        """
-        Ищет похожие вектор исходя из заданного вопроса
-
-        Возвращает: список чанков
-
-        """
-        vector_store = Chroma(
-            collection_name=self,
-            persist_directory="backend/database/chroma/chroma_db",
-            embedding_function=self.embeddings,
-        )
-        try:
-            return vector_store.similarity_search(
-                question,
-                k=chunk_size,
-            )
-        except Exception as e:
-            log.exception("Ошибка поиска векторов: ", e)
-            raise
 
 
 embedding_service = EmbeddingService()
