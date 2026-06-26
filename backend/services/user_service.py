@@ -85,6 +85,17 @@ class UserService:
         return result.scalar_one_or_none()
 
     @provider.inject_session
+    async def get_user_by_name(
+        self,
+        session: AsyncSession,
+        username: str,
+    ) -> User | None:
+        result = await session.execute(
+            select(User).where(User.username == username),
+        )
+        return result.scalar_one_or_none()
+
+    @provider.inject_session
     async def get_all_users(self, session: AsyncSession) -> list[User] | None:
         try:
             result = await session.execute(select(User).order_by(User.id))

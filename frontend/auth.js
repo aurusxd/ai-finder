@@ -3,6 +3,12 @@ const AUTH_STORAGE_KEY = 'ai_finder_auth';
 
 function saveAuth(data) {
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+    console.log("Сохранено")
+}
+
+function saveAuth(key,data) {
+    localStorage.setItem(key, JSON.stringify(data));
+    console.log("Сохранено")
 }
 
 function getAuth() {

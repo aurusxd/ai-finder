@@ -12,6 +12,10 @@ class UserModel(BaseModel):
     api_token: str
 
 
+class UserByNameModel(BaseModel):
+    username: str
+
+
 class UserCreateModel(BaseModel):
     username: str
     password_hash: str

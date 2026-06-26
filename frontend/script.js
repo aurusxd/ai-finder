@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const data = await response.json();
+            console.log(data)
             saveAuth(data);
             window.location.href = 'index.html';
         } catch {

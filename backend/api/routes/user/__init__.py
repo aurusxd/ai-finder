@@ -7,6 +7,7 @@ from backend.schemas.user_schema import (
     AuthResponse,
     LoginRequest,
     RegisterRequest,
+    UserByNameModel,
     UserRead,
 )
 from backend.services.user_service import user_service
@@ -69,4 +70,13 @@ async def list_users() -> list[User]:
         return await user_service.get_all_users()
     except Exception as e:
         log.exception("Пользователи не были получены", e)
+        raise
+
+
+@router.get("/userByName", response_model=UserRead)
+async def get_by_name_user(username: str) -> User:
+    try:
+        return await user_service.get_user_by_name(username=username)
+    except Exception as e:
+        log.exception("Пользователь не были получены", e)
         raise

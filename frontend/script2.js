@@ -17,9 +17,10 @@ const chatInput = document.getElementById('chatInput');
 const chatSendBtn = document.getElementById('chatSendBtn');
 const newChatBtn = document.getElementById('newChatBtn');
 const attachBtn = document.getElementById('attachBtn');
+const now = new Date();
 
 
-function addMessage(text, isUser = false) {
+async function addMessage(text, isUser = false) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isUser ? 'user' : 'gpt'}`;
 
@@ -35,7 +36,6 @@ function addMessage(text, isUser = false) {
 
     const time = document.createElement('div');
     time.className = 'message-time';
-    const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     time.textContent = hours + ':' + minutes;
@@ -47,15 +47,59 @@ function addMessage(text, isUser = false) {
 
     messagesArea.appendChild(messageDiv);
     messagesArea.scrollTop = messagesArea.scrollHeight;
+        try {
+            const response = await fetch(API_BASE_URL + '/messages/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    content: text,
+                    role:  isUser ? 'user' : 'gpt',
+                    created_at: now,
+                    chat_id: 1
+                }),
+            });
+            if(!response.ok){
+                console.error("Ошибка выполнения запроса",response)
+            }
+        } catch (error){
+            console.error(error);
+        }
 }
 
 
-function openChat(query) {
+async function openChat(query) {
+
     startScreen.classList.add('hidden');
     messagesArea.classList.remove('hidden');
     chatInputArea.classList.add('active');
 
     messagesArea.innerHTML = '';
+
+            try {
+            const user = getAuth();
+            console.log(user)
+            const response = await fetch(API_BASE_URL + '/chats/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    user_id: user.user.id,
+                    created_at: now,
+      
+                }),
+            });
+            if(!response.ok){
+                console.error("Ошибка выполнения запроса: ",response)
+            }
+            console.log(response);
+        } catch (error){
+            console.error(error);
+        }
 
     if (query && query.trim()) {
         addMessage(query.trim(), true);
@@ -91,6 +135,8 @@ startAttachBtn.addEventListener('click', function() {
 
 
 function handleChatSend() {
+
+
     const query = chatInput.value.trim();
     if (query) {
         addMessage(query, true);
@@ -111,7 +157,7 @@ function handleChatSend() {
 }
 
 chatSendBtn.addEventListener('click', handleChatSend);
-chatInput.addEventListener('keydown', function(e) {ы
+chatInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault();
         handleChatSend();

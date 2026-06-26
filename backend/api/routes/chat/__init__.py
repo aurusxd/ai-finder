@@ -12,7 +12,7 @@ router = APIRouter(tags=["chat"], prefix="/chats")
 
 
 @router.post(
-    "/",
+    "/create",
     response_model=ChatModel,
     summary="Create a new chat",
     description="Create a new chat",

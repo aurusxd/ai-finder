@@ -11,7 +11,7 @@ router = APIRouter(tags=["message"], prefix="/messages")
 
 
 @router.post(
-    "/",
+    "/create",
     response_model=MessageModel,
     summary="Create a new message",
     description="Generate a new message from user context",
@@ -30,4 +30,5 @@ async def create_new_message(
     message = await message_service.create_message(
         data.content, data.role, data.chat_id
     )
+
     return MessageModel.model_validate(message, from_attributes=True)
