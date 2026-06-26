@@ -8,6 +8,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from backend.database.models.user import User
 from backend.log import log
+from backend.services.user_service import user_service
 from depends import provider
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -92,6 +93,14 @@ class SecurityService:
                 detail="Invalid token format",
             ) from err
 
+        user = await user_service.get_user_by_token(token=token)
+        if user is None:
+            raise HTTPException(
+                status_code=403,
+                detail="Invalid token",
+            )
+        return user
+
     def set_cookeis(
         self,
         token: str,
@@ -102,7 +111,7 @@ class SecurityService:
             key="token",
             value=compress_token(token),
             httponly=True,
-            secure=True,
+            secure=False,
             samesite="lax",
         )
 
@@ -113,7 +122,7 @@ class SecurityService:
         response.delete_cookie(
             key="token",
             httponly=True,
-            secure=True,
+            secure=False,
             samesite="lax",
         )
 

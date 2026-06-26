@@ -1,4 +1,12 @@
 
+requireAuth();
+
+const auth = getAuth();
+if (auth && auth.user) {
+    document.getElementById('profileName').textContent = auth.user.username;
+    document.getElementById('profileEmail').textContent = auth.user.email_address;
+}
+
 const startScreen = document.getElementById('startScreen');
 const messagesArea = document.getElementById('messagesArea');
 const chatInputArea = document.getElementById('chatInputArea');
@@ -48,7 +56,6 @@ function openChat(query) {
     chatInputArea.classList.add('active');
 
     messagesArea.innerHTML = '';
-    addMessage('Привет! Чем могу помочь? 😊', false);
 
     if (query && query.trim()) {
         addMessage(query.trim(), true);

@@ -1,13 +1,14 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from hashlib import sha256
+import uuid
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database.models.user import User
 from backend.log import log
-from backend.schemas.user_schema import LoginRequest
+from backend.schemas.user_schema import LoginRequest, RegisterRequest
 from depends import provider
 
 
@@ -40,10 +41,48 @@ class UserService:
             log.info("Пользователь создан")
             await session.flush()
             await session.refresh(user)
+            return user
         except SQLAlchemyError as e:
             log.error("Пользователь не был зарегистрирован ", e)
             await session.rollback()
             return None
+
+    @provider.inject_session
+    async def register_new_user(
+        self,
+        session: AsyncSession,
+        data: RegisterRequest,
+    ) -> User | None:
+        existing = await session.execute(
+            select(User).where(
+                or_(
+                    User.username == data.username,
+                    User.email_address == data.email_address,
+                ),
+            ),
+        )
+        if existing.scalar_one_or_none():
+            return None
+
+        user = User(
+            username=data.username,
+            password_hash=hash_password(data.password),
+            email_address=data.email_address,
+            created_at=datetime.now(timezone.utc),
+            api_token=str(uuid.uuid4()),
+        )
+        return await self.register_user(user=user, session=session)
+
+    @provider.inject_session
+    async def get_user_by_token(
+        self,
+        session: AsyncSession,
+        token: str,
+    ) -> User | None:
+        result = await session.execute(
+            select(User).where(User.api_token == token),
+        )
+        return result.scalar_one_or_none()
 
     @provider.inject_session
     async def get_all_users(self, session: AsyncSession) -> list[User] | None:
@@ -56,9 +95,18 @@ class UserService:
             return None
 
     @provider.inject_session
-    async def user_login(self, session: AsyncSession, payload: LoginRequest) -> User:
+    async def user_login(
+        self,
+        session: AsyncSession,
+        payload: LoginRequest,
+    ) -> User | None:
         result = await session.execute(
-            select(User).where(User.username == payload.username),
+            select(User).where(
+                or_(
+                    User.username == payload.username,
+                    User.email_address == payload.username,
+                ),
+            ),
         )
         user = result.scalar_one_or_none()
         if user is None or user.password_hash != hash_password(payload.password):

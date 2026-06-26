@@ -33,12 +33,12 @@ class UserRead(BaseModel):
 class RegisterRequest(BaseModel):
     username: str
     email_address: str
-    password_hash: str
+    password: str
 
 
 class LoginRequest(BaseModel):
     username: str
-    password_hash: str
+    password: str
 
 
 class AuthUserRead(BaseModel):
@@ -52,3 +52,4 @@ class AuthUserRead(BaseModel):
 class AuthResponse(BaseModel):
     message: str
     user: AuthUserRead
+    api_token: str
