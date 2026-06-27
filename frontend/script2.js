@@ -9,6 +9,9 @@ const chatInput = document.getElementById('chatInput');
 const chatSendBtn = document.getElementById('chatSendBtn');
 const newChatBtn = document.getElementById('newChatBtn');
 const attachBtn = document.getElementById('attachBtn');
+const profileMenuBtn = document.getElementById('profileMenuBtn');
+const profileDropdown = document.getElementById('profileDropdown');
+const logoutBtn = document.getElementById('logoutBtn');
 
 
 function addMessage(text, isUser = false) {
@@ -125,5 +128,22 @@ newChatBtn.addEventListener('click', function() {
     startInput.focus();
 });
 
+
+profileMenuBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    profileDropdown.classList.toggle('active');
+});
+
+
+document.addEventListener('click', function(e) {
+    if (!profileMenuBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+        profileDropdown.classList.remove('active');
+    }
+});
+
+logoutBtn.addEventListener('click', function() {
+    alert('Выход из аккаунта (демо)');
+    profileDropdown.classList.remove('active');
+});
 
 startInput.focus();
