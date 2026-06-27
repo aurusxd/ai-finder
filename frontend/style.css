@@ -180,6 +180,44 @@ body {
     padding-bottom: 16px;
 }
 
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    margin-bottom: 20px;
+    text-decoration: none;
+    color: inherit;
+    flex-shrink: 0;
+    border-radius: 10px;
+    transition: background 0.15s;
+}
+
+.sidebar-logo:hover {
+    background: rgba(26, 115, 232, 0.06);
+}
+
+.sidebar-logo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+    border-radius: 10px;
+    color: #ffffff;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.25);
+}
+
+.sidebar-logo-text {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: #1c1c1e;
+    line-height: 1.2;
+}
+
 .new-chat-btn {
     display: flex;
     align-items: center;
@@ -195,7 +233,7 @@ body {
     cursor: pointer;
     width: calc(100% - 8px);
     margin-left: 8px;
-    margin-top: 50px;
+    margin-top: 0;
     box-shadow: 0 2px 6px rgba(26, 115, 232, 0.25);
     letter-spacing: 0.2px;
     flex-shrink: 0;
@@ -727,6 +765,19 @@ body {
         width: 200px;
         padding: 14px 10px 0 10px;
     }
+    .sidebar-logo {
+        padding: 6px 8px;
+        margin-bottom: 16px;
+        gap: 8px;
+    }
+    .sidebar-logo-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+    }
+    .sidebar-logo-text {
+        font-size: 15px;
+    }
     .new-chat-btn {
         font-size: 13px;
         padding: 7px 14px;
@@ -870,5 +921,8 @@ body {
         font-size: 12px;
         padding: 8px 12px;
     }
+
+
+    
 
 }
