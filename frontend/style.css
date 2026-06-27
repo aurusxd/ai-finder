@@ -212,26 +212,27 @@ body {
 }
 
 .sidebar-bottom {
-    border-top: 1px solid #e4e4e7;
-    padding: 16px 0 16px 0;
+     border-top: 1px solid #e4e4e7;
+    padding: 12px 0 12px 0;
     margin-top: auto;
     flex-shrink: 0;
     background: #f7f7f8;
 }
 
 .profile-card {
-    display: flex;
+     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 8px 10px;
+    gap: 12px;
+    padding: 6px 10px;
     border-radius: 40px;
     background: #f0f0f2;
     cursor: default;
+    position: relative;
 }
 
 .profile-avatar {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     background: #8e9aaf;
     border-radius: 50%;
     display: flex;
@@ -239,7 +240,7 @@ body {
     justify-content: center;
     color: white;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 14px;
     flex-shrink: 0;
 }
 
@@ -252,13 +253,13 @@ body {
 
 .profile-name {
     font-weight: 500;
-    font-size: 15px;
+    font-size: 14px;
     color: #1c1c1e;
     line-height: 1.3;
 }
 
 .profile-email {
-    font-size: 12px;
+     font-size: 11px;
     color: #6c6c70;
     white-space: nowrap;
     overflow: hidden;
@@ -271,6 +272,94 @@ body {
     margin-left: 4px;
 }
 
+.profile-menu-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.profile-menu-btn {
+    background: transparent;
+    border: none;
+    color: #6c6c70;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    font-size: 18px;
+}
+
+.profile-menu-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: #1c1c1e;
+}
+
+.profile-menu-btn:active {
+    transform: scale(0.92);
+}
+
+.profile-dropdown {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 8px); 
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    padding: 6px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px); 
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    z-index: 1000;
+}
+
+.profile-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    color: #1c1c1e;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: inherit;
+}
+
+.dropdown-item:hover {
+    background: #f0f0f2;
+}
+
+.dropdown-item i {
+    font-size: 16px;
+    color: #6c6c70;
+    width: 20px;
+    text-align: center;
+}
+
+.dropdown-item.logout-item {
+    color: #e53935;
+}
+
+.dropdown-item.logout-item i {
+    color: #e53935;
+}
+
+.dropdown-item.logout-item:hover {
+    background: #fde8e8;
+}
 
 .main-chat {
     flex: 1;
@@ -644,9 +733,7 @@ body {
         margin-left: 6px;
         width: calc(100% - 6px);
     }
-    .profile-name {
-        font-size: 13px;
-    }
+    
     .messages-area {
         padding: 24px 16px 16px 16px;
     }
@@ -675,6 +762,33 @@ body {
         font-size: 22px;
         margin-right: 10px;
     }
+
+    .profile-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+    .profile-name {
+        font-size: 13px;
+    }
+    .profile-email {
+        font-size: 10px;
+    }
+    .profile-menu-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
+    .profile-dropdown {
+        min-width: 160px;
+        right: -4px;
+        bottom: calc(100% + 6px);
+    }
+    .dropdown-item {
+        font-size: 13px;
+        padding: 8px 14px;
+    }
+
 }
 
 
@@ -690,11 +804,7 @@ body {
         width: calc(100% - 4px);
         gap: 6px;
     }
-    .profile-avatar {
-        width: 34px;
-        height: 34px;
-        font-size: 14px;
-    }
+    
     .sidebar-bottom {
         padding: 12px 0 12px 0;
     }
@@ -734,4 +844,31 @@ body {
         font-size: 20px;
         margin-right: 10px;
     }
+
+    .profile-avatar {
+        width: 26px;
+        height: 26px;
+        font-size: 11px;
+    }
+    .profile-name {
+        font-size: 12px;
+    }
+    .profile-email {
+        font-size: 9px;
+    }
+    .profile-menu-btn {
+        width: 26px;
+        height: 26px;
+        font-size: 14px;
+    }
+    .profile-dropdown {
+        min-width: 140px;
+        right: -6px;
+        bottom: calc(100% + 4px);
+    }
+    .dropdown-item {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
 }

@@ -15,18 +15,32 @@
                 </button>
             </div>
 
-            <div class="sidebar-bottom">
-                <div class="profile-card">
-                    <div class="profile-avatar">
-                        <i class="fas fa-user" style="color: white; font-size: 20px;"></i>
-                    </div>
-                    <div class="profile-info">
-                        <span class="profile-name" id="profileName">Пользователь</span>
-                        <span class="profile-email" id="profileEmail"></span>
-                    </div>
-                    <i class="fas fa-ellipsis-v profile-icon"></i>
-                </div>
+          <div class="sidebar-bottom">
+    <div class="profile-card">
+        <div class="profile-avatar">
+            <i class="fas fa-user" style="color: white; font-size: 16px;"></i>
+        </div>
+        <div class="profile-info">
+            <span class="profile-name" id="profileName"></span>
+            <span class="profile-email" id="profileEmail"></span>
+        </div>
+        <div class="profile-menu-wrapper">
+            <button class="profile-menu-btn" id="profileMenuBtn" title="Меню">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="5" r="2.5"/>
+                    <circle cx="12" cy="12" r="2.5"/>
+                    <circle cx="12" cy="19" r="2.5"/>
+                </svg>
+            </button>
+            
+            <div class="profile-dropdown" id="profileDropdown">
+                <button class="dropdown-item" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
             </div>
+        </div>
+    </div>
+</div>
         </aside>
 
         <main class="main-chat">

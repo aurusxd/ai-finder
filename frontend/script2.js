@@ -2,6 +2,7 @@
 requireAuth();
 
 const auth = getAuth();
+console.log(auth);
 if (auth && auth.user) {
     document.getElementById('profileName').textContent = auth.user.username;
     document.getElementById('profileEmail').textContent = auth.user.email_address;
@@ -18,6 +19,9 @@ const chatSendBtn = document.getElementById('chatSendBtn');
 const newChatBtn = document.getElementById('newChatBtn');
 const attachBtn = document.getElementById('attachBtn');
 const now = new Date();
+const profileMenuBtn = document.getElementById('profileMenuBtn');
+const profileDropdown = document.getElementById('profileDropdown');
+const logoutBtn = document.getElementById('logoutBtn');
 
 
 async function addMessage(text, isUser = false) {
@@ -178,5 +182,22 @@ newChatBtn.addEventListener('click', function() {
     startInput.focus();
 });
 
+
+profileMenuBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    profileDropdown.classList.toggle('active');
+});
+
+
+document.addEventListener('click', function(e) {
+    if (!profileMenuBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+        profileDropdown.classList.remove('active');
+    }
+});
+
+logoutBtn.addEventListener('click', function() {
+    alert('Выход из аккаунта (демо)');
+    profileDropdown.classList.remove('active');
+});
 
 startInput.focus();
