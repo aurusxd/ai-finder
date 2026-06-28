@@ -70,10 +70,10 @@ async def generate_message_from_context(
 
             collection_name = f"document_{doc.id}"
             # дальше: chunks -> embeddings -> ChromaDB
-            await embedding_service.generate_embedding(chunks, document_name=collection_name)
+            await embedding_service.generate_embedding(chunks, document_name=collection_name)  # noqa: E501
 
             # потом ищешь похожие чанки и собираешь context
-            found_chunks = await vector_store_service.find_vectors(collection_name, question, 3)
+            found_chunks = await vector_store_service.find_vectors(collection_name, question, 3)  # noqa: E501
             message_context = "\n\n".join(chunk.page_content for chunk in found_chunks)
 
         message = await ollama_service.answer_by_context(
