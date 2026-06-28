@@ -22,7 +22,11 @@ const now = new Date();
 const profileMenuBtn = document.getElementById('profileMenuBtn');
 const profileDropdown = document.getElementById('profileDropdown');
 const logoutBtn = document.getElementById('logoutBtn');
+const fileInput = document.getElementById("fileInput");
+const uploadBtn = document.getElementById("attachBtn");
+const selectedFilePreview = document.getElementById('selectedFilePreview');
 
+let selectedFile = null;
 
 async function addMessage(text, isUser = false) {
     const messageDiv = document.createElement('div');
@@ -131,7 +135,8 @@ startInput.addEventListener('keydown', function(e) {
 
 
 startAttachBtn.addEventListener('click', function() {
-    alert('Функция прикрепления документов (демо)');
+    fileInput.click();
+
 });
 
 
@@ -177,7 +182,8 @@ chatInput.addEventListener('keydown', function(e) {
 
 
 attachBtn.addEventListener('click', function() {
-    alert('Функция прикрепления документов (демо)');
+    fileInput.click();
+
 });
 
 
@@ -205,6 +211,27 @@ document.addEventListener('click', function(e) {
 logoutBtn.addEventListener('click', function() {
     alert('Выход из аккаунта (демо)');
     profileDropdown.classList.remove('active');
+});
+
+fileInput.addEventListener('change', function (e) {
+    selectedFile = e.target.files[0];
+
+    if (!selectedFile) {
+        return;
+    }
+
+    selectedFilePreview.classList.remove('hidden');
+    selectedFilePreview.innerHTML = `
+        <span>📄 ${selectedFile.name}</span>
+        <button class="file-remove-btn" type="button" id="removeFileBtn">×</button>
+    `;
+
+    document.getElementById('removeFileBtn').addEventListener('click', function () {
+        selectedFile = null;
+        fileInput.value = '';
+        selectedFilePreview.classList.add('hidden');
+        selectedFilePreview.innerHTML = '';
+    });
 });
 
 startInput.focus();

@@ -92,9 +92,17 @@
                 <div class="input-wrapper">
                     <input type="text" id="chatInput" placeholder="Введите сообщение..." />
                     <div class="input-actions">
+                        <input
+                            type="file"
+                            id="fileInput"
+                            hidden
+                            accept=".pdf,.docx,.txt,.md"
+                        />
+
                         <button class="attach-btn" id="attachBtn" title="Прикрепить документ">
                             +
                         </button>
+                        <div id="selectedFilePreview" class="file-preview hidden"></div>
                         <button class="send-btn" id="chatSendBtn">
                             ⮞
                         </button>
