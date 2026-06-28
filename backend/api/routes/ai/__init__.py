@@ -36,7 +36,7 @@ async def generate_message_from_context(
     question: str = Form(...),
     user_id: int = Form(...),
     context: str = Form(""),
-    file: UploadFile | None = File(None),
+    file: UploadFile | None = File(None),  # noqa: B008
 ):
     message_context = context
 
@@ -50,7 +50,7 @@ async def generate_message_from_context(
 
             file_path = user_dir / file.filename
 
-            with open(file_path, "wb") as f:
+            with open(file_path, "wb") as f:  # noqa: ASYNC230
                 f.write(content)
 
             doc = await document_service.upload_document(
@@ -58,7 +58,7 @@ async def generate_message_from_context(
                 name=file.filename,
                 path=str(file_path),
                 size=size,
-                uploaded_at=datetime.utcnow(),
+                uploaded_at=datetime.utcnow(),  # noqa: DTZ003
                 session=session,
             )
 
