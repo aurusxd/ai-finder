@@ -12,6 +12,7 @@ from backend.services.document_service import document_service
 from backend.services.embedding_service import embedding_service
 from backend.services.loader_service import loader_service
 from backend.services.ollama_service import ollama_service
+from backend.services.openAI_service import openai_service
 from backend.services.vector_store_service import vector_store_service
 from depends import provider
 
@@ -80,7 +81,7 @@ async def generate_message_from_context(
             )
             message_context = "\n\n".join(chunk.page_content for chunk in found_chunks)
 
-        message = await ollama_service.answer_by_context(
+        message = await openai_service.answer_by_context(
             question=question,
             context=message_context,
         )
