@@ -1,6 +1,7 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+import httpx
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.schemas.ai_schema import AiAnswerModel, AiModel
@@ -26,7 +27,14 @@ async def generate_message_from_context(
     data: AiModel,
     # current_user: Annotated[User, Depends(security.get_current_user)],
 ):
-    message = await ollama_service.answer_by_context(data.question, data.context)
+    try:
+        message = await ollama_service.answer_by_context(data.question, data.context)
+    except httpx.ConnectError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Ollama is unavailable. Start Ollama and make sure the configured model is pulled.",
+        ) from exc
+
     return AiAnswerModel(
         question=data.question,
         context=data.context,

@@ -101,16 +101,13 @@ async function openChat(query) {
                 console.error("Ошибка выполнения запроса: ",response)
             }
             console.log(response);
-        } catch (error){
-            console.error(error);
-        }
+            } catch (error){
+                console.error(error);
+            }
 
-    if (query && query.trim()) {
-        addMessage(query.trim(), true);
-        setTimeout(function() {
-            addMessage('Спасибо за ваш вопрос! Я обрабатываю запрос: "' + query.trim() + '". Чем ещё могу помочь?', false);
-        }, 500);
-    }
+    handleChatSend(query);
+
+    
 
     chatInput.value = '';
     chatInput.focus();
@@ -138,26 +135,36 @@ startAttachBtn.addEventListener('click', function() {
 });
 
 
-function handleChatSend() {
-
-
-    const query = chatInput.value.trim();
-    if (query) {
-        addMessage(query, true);
+async function handleChatSend(query) {
+        const messageText = typeof query === 'string' ? query.trim() : chatInput.value.trim();
+        if (messageText) {
+        addMessage(messageText, true);
         chatInput.value = '';
-
-        setTimeout(function() {
-            const responses = [
-                'Отличный вопрос! Давайте разберёмся.',
-                'Интересно! Расскажите подробнее.',
-                'Я понимаю. Вот что я думаю по этому поводу.',
-                'Спасибо за уточнение! Продолжим.',
-                'Хорошо, я запомнил. Что дальше?'
-            ];
-            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-            addMessage(randomResponse, false);
-        }, 600);
+                try {
+                    const response = await fetch(API_BASE_URL + '/ai/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            context: "Какашка - это смесь выделенного уксуса и водорода",
+                            question: messageText,
+            
+                        }),
+                    });
+                    const data = await response.json();
+                    if(!response.ok){
+                        console.error("Ошибка выполнения запроса: ",response, data)
+                        addMessage(data.detail || 'Не удалось получить ответ от AI.', false);
+                        return;
+                    }
+                    addMessage(data.answer,false);
+                } catch (error){
+                    console.error(error);
+                }
     }
+
 }
 
 chatSendBtn.addEventListener('click', handleChatSend);
