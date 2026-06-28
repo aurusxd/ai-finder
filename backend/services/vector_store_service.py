@@ -1,10 +1,14 @@
 from langchain_chroma import Chroma
+from langchain_ollama import OllamaEmbeddings
 
 from backend.database.models.document import Document
 from backend.log import log
 
 
 class VectorStoreService:
+
+    embeddings = OllamaEmbeddings(model="nomic-embed-text")
+
     async def find_vectors(
         self, collection_name: str, question: str, chunk_size: int
     ) -> list[Document]:

@@ -23,7 +23,7 @@
                     </span>
                     <span class="sidebar-logo-text">AI Finder</span>
                 </a>
-                <button class="new-chat-btn" id="newChatBtn">
+                <button class="new-chat-btn" id="newChatBtn" type="button">
                     <i class="fas fa-plus"></i> + Новый чат
                 </button>
             </div>
@@ -73,10 +73,10 @@
                     <div class="start-input-wrapper">
                         <input type="text" id="startInput" placeholder="Введите запрос..." />
                         <div class="start-actions">
-                            <button class="attach-btn" id="startAttachBtn" title="Прикрепить документ">
+                            <button class="attach-btn" id="startAttachBtn" title="Прикрепить документ" type="button">
                                 +
                             </button>
-                            <button class="send-btn" id="startSendBtn">
+                            <button class="send-btn" id="startSendBtn" type="button">
                                 ⮞
                             </button>
                         </div>
@@ -89,6 +89,8 @@
 
             
             <div class="input-area" id="chatInputArea">
+                <div id="selectedFilePreview" class="file-preview hidden"></div>
+
                 <div class="input-wrapper">
                     <input type="text" id="chatInput" placeholder="Введите сообщение..." />
                     <div class="input-actions">
@@ -99,11 +101,10 @@
                             accept=".pdf,.docx,.txt,.md"
                         />
 
-                        <button class="attach-btn" id="attachBtn" title="Прикрепить документ">
+                        <button class="attach-btn" id="attachBtn" title="Прикрепить документ" type="button">
                             +
                         </button>
-                        <div id="selectedFilePreview" class="file-preview hidden"></div>
-                        <button class="send-btn" id="chatSendBtn">
+                        <button class="send-btn" id="chatSendBtn" type="button">
                             ⮞
                         </button>
                     </div>

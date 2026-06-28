@@ -23,7 +23,6 @@ class DocumentLoader:
         """
         try:
             doc = await ds.get_document_by_id(document_id)
-
             raw_path = doc.path
 
             clean_path = "".join(
@@ -32,7 +31,7 @@ class DocumentLoader:
 
             path = anyioPath(clean_path)
 
-            if not path.exists():
+            if not await path.exists():
                 msg = f"Файл не найден: {str(path)!r}"
                 raise FileNotFoundError(msg)
 
@@ -45,7 +44,7 @@ class DocumentLoader:
             )
 
             chunks = text_splitter.split_documents(docs)
-            for i, c in chunks:
+            for i, c in enumerate(chunks):
                 page_number = c.metadata.get("page")
                 doc_chunk = DocumentChunk(
                     text=c.page_content,

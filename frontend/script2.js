@@ -125,7 +125,10 @@ function handleStartSend() {
     }
 }
 
-startSendBtn.addEventListener('click', handleStartSend);
+startSendBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    handleStartSend();
+});
 startInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault();
@@ -139,40 +142,54 @@ startAttachBtn.addEventListener('click', function() {
 
 });
 
-
 async function handleChatSend(query) {
-        const messageText = typeof query === 'string' ? query.trim() : chatInput.value.trim();
-        if (messageText) {
-        addMessage(messageText, true);
-        chatInput.value = '';
-                try {
-                    const response = await fetch(API_BASE_URL + '/ai/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        credentials: 'include',
-                        body: JSON.stringify({
-                            context: "Какашка - это смесь выделенного уксуса и водорода",
-                            question: messageText,
-            
-                        }),
-                    });
-                    const data = await response.json();
-                    if(!response.ok){
-                        console.error("Ошибка выполнения запроса: ",response, data)
-                        addMessage(data.detail || 'Не удалось получить ответ от AI.', false);
-                        return;
-                    }
-                    addMessage(data.answer,false);
-                } catch (error){
-                    console.error(error);
-                }
-    }
+    try {
+        const formData = new FormData();
+        const messageText =
+            typeof query === 'string' ? query.trim() : chatInput.value.trim();
 
+        formData.append('question', messageText);
+        formData.append('user_id', auth.user.id);
+
+        if (selectedFile) {
+            formData.append('file', selectedFile);
+        }
+
+        if (!messageText) {
+            return;
+        }
+
+        await addMessage(messageText, true);
+        chatInput.value = '';
+
+        for (const pair of formData.entries()) {
+            console.log(pair[0], pair[1]);
+        }
+
+        const response = await fetch(API_BASE_URL + '/ai/ask', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            console.error(await response.text());
+            return;
+        }
+
+        const data = await response.json();
+        console.log(data);
+        await addMessage(data.answer, false);
+
+    } catch (error) {
+        console.error("Ошибка при отправке сообщения: ", error);
+    }
 }
 
-chatSendBtn.addEventListener('click', handleChatSend);
+chatSendBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    handleChatSend();
+});
 chatInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault();
