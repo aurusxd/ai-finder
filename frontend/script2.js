@@ -1,4 +1,13 @@
 
+requireAuth();
+
+const auth = getAuth();
+console.log(auth);
+if (auth && auth.user) {
+    document.getElementById('profileName').textContent = auth.user.username;
+    document.getElementById('profileEmail').textContent = auth.user.email_address;
+}
+
 const startScreen = document.getElementById('startScreen');
 const messagesArea = document.getElementById('messagesArea');
 const chatInputArea = document.getElementById('chatInputArea');
@@ -9,12 +18,17 @@ const chatInput = document.getElementById('chatInput');
 const chatSendBtn = document.getElementById('chatSendBtn');
 const newChatBtn = document.getElementById('newChatBtn');
 const attachBtn = document.getElementById('attachBtn');
+const now = new Date();
 const profileMenuBtn = document.getElementById('profileMenuBtn');
 const profileDropdown = document.getElementById('profileDropdown');
 const logoutBtn = document.getElementById('logoutBtn');
+const fileInput = document.getElementById("fileInput");
+const uploadBtn = document.getElementById("attachBtn");
+const selectedFilePreview = document.getElementById('selectedFilePreview');
 
+let selectedFile = null;
 
-function addMessage(text, isUser = false) {
+async function addMessage(text, isUser = false) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isUser ? 'user' : 'gpt'}`;
 
@@ -30,7 +44,6 @@ function addMessage(text, isUser = false) {
 
     const time = document.createElement('div');
     time.className = 'message-time';
-    const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     time.textContent = hours + ':' + minutes;
@@ -42,23 +55,63 @@ function addMessage(text, isUser = false) {
 
     messagesArea.appendChild(messageDiv);
     messagesArea.scrollTop = messagesArea.scrollHeight;
+        try {
+            const response = await fetch(API_BASE_URL + '/messages/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    content: text,
+                    role:  isUser ? 'user' : 'gpt',
+                    created_at: now,
+                    chat_id: 1
+                }),
+            });
+            if(!response.ok){
+                console.error("Ошибка выполнения запроса",response)
+            }
+        } catch (error){
+            console.error(error);
+        }
 }
 
 
-function openChat(query) {
+async function openChat(query) {
+
     startScreen.classList.add('hidden');
     messagesArea.classList.remove('hidden');
     chatInputArea.classList.add('active');
 
     messagesArea.innerHTML = '';
-    addMessage('Привет! Чем могу помочь? 😊', false);
 
-    if (query && query.trim()) {
-        addMessage(query.trim(), true);
-        setTimeout(function() {
-            addMessage('Спасибо за ваш вопрос! Я обрабатываю запрос: "' + query.trim() + '". Чем ещё могу помочь?', false);
-        }, 500);
-    }
+            try {
+            const user = getAuth();
+            console.log(user)
+            const response = await fetch(API_BASE_URL + '/chats/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    user_id: user.user.id,
+                    created_at: now,
+      
+                }),
+            });
+            if(!response.ok){
+                console.error("Ошибка выполнения запроса: ",response)
+            }
+            console.log(response);
+            } catch (error){
+                console.error(error);
+            }
+
+    handleChatSend(query);
+
+    
 
     chatInput.value = '';
     chatInput.focus();
@@ -72,7 +125,10 @@ function handleStartSend() {
     }
 }
 
-startSendBtn.addEventListener('click', handleStartSend);
+startSendBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    handleStartSend();
+});
 startInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault();
@@ -82,32 +138,59 @@ startInput.addEventListener('keydown', function(e) {
 
 
 startAttachBtn.addEventListener('click', function() {
-    alert('Функция прикрепления документов (демо)');
+    fileInput.click();
+
 });
 
+async function handleChatSend(query) {
+    try {
+        const formData = new FormData();
+        const messageText =
+            typeof query === 'string' ? query.trim() : chatInput.value.trim();
 
-function handleChatSend() {
-    const query = chatInput.value.trim();
-    if (query) {
-        addMessage(query, true);
+        formData.append('question', messageText);
+        formData.append('user_id', auth.user.id);
+
+        if (selectedFile) {
+            formData.append('file', selectedFile);
+        }
+
+        if (!messageText) {
+            return;
+        }
+
+        await addMessage(messageText, true);
         chatInput.value = '';
 
-        setTimeout(function() {
-            const responses = [
-                'Отличный вопрос! Давайте разберёмся.',
-                'Интересно! Расскажите подробнее.',
-                'Я понимаю. Вот что я думаю по этому поводу.',
-                'Спасибо за уточнение! Продолжим.',
-                'Хорошо, я запомнил. Что дальше?'
-            ];
-            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-            addMessage(randomResponse, false);
-        }, 600);
+        for (const pair of formData.entries()) {
+            console.log(pair[0], pair[1]);
+        }
+
+        const response = await fetch(API_BASE_URL + '/ai/ask', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            console.error(await response.text());
+            return;
+        }
+
+        const data = await response.json();
+        console.log(data);
+        await addMessage(data.answer, false);
+
+    } catch (error) {
+        console.error("Ошибка при отправке сообщения: ", error);
     }
 }
 
-chatSendBtn.addEventListener('click', handleChatSend);
-chatInput.addEventListener('keydown', function(e) {ы
+chatSendBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    handleChatSend();
+});
+chatInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault();
         handleChatSend();
@@ -116,7 +199,8 @@ chatInput.addEventListener('keydown', function(e) {ы
 
 
 attachBtn.addEventListener('click', function() {
-    alert('Функция прикрепления документов (демо)');
+    fileInput.click();
+
 });
 
 
@@ -144,6 +228,27 @@ document.addEventListener('click', function(e) {
 logoutBtn.addEventListener('click', function() {
     alert('Выход из аккаунта (демо)');
     profileDropdown.classList.remove('active');
+});
+
+fileInput.addEventListener('change', function (e) {
+    selectedFile = e.target.files[0];
+
+    if (!selectedFile) {
+        return;
+    }
+
+    selectedFilePreview.classList.remove('hidden');
+    selectedFilePreview.innerHTML = `
+        <span>📄 ${selectedFile.name}</span>
+        <button class="file-remove-btn" type="button" id="removeFileBtn">×</button>
+    `;
+
+    document.getElementById('removeFileBtn').addEventListener('click', function () {
+        selectedFile = null;
+        fileInput.value = '';
+        selectedFilePreview.classList.add('hidden');
+        selectedFilePreview.innerHTML = '';
+    });
 });
 
 startInput.focus();
