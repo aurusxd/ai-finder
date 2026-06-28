@@ -6,7 +6,6 @@ from backend.log import log
 
 
 class VectorStoreService:
-
     embeddings = OllamaEmbeddings(model="nomic-embed-text")
 
     async def find_vectors(

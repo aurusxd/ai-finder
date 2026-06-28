@@ -66,14 +66,18 @@ async def generate_message_from_context(
                 raise HTTPException(status_code=500, detail="Document was not saved")
 
             # loader должен читать именно сохранённый файл
-            chunks = await loader_service.document_loader(doc.id,session)
+            chunks = await loader_service.document_loader(doc.id, session)
 
             collection_name = f"document_{doc.id}"
             # дальше: chunks -> embeddings -> ChromaDB
-            await embedding_service.generate_embedding(chunks, document_name=collection_name)  # noqa: E501
+            await embedding_service.generate_embedding(
+                chunks, document_name=collection_name
+            )
 
             # потом ищешь похожие чанки и собираешь context
-            found_chunks = await vector_store_service.find_vectors(collection_name, question, 3)  # noqa: E501
+            found_chunks = await vector_store_service.find_vectors(
+                collection_name, question, 3
+            )
             message_context = "\n\n".join(chunk.page_content for chunk in found_chunks)
 
         message = await ollama_service.answer_by_context(
