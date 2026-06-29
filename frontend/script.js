@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const data = await response.json();
-            saveAuth(data);
+            saveAuth("ai_finder_auth",data);
             window.location.href = 'index.html';
         } catch {
             errorEl.textContent = '⚠️ Не удалось подключиться к серверу';
