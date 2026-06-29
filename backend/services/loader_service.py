@@ -51,7 +51,7 @@ class DocumentLoader:
                     loader = Docx2txtLoader(str(path))
                 case ".md":
                     log.info("Получил md файл")
-                    loader = TextLoader(str(path))
+                    loader = TextLoader(str(path), encoding="utf-8")
 
             docs = loader.load()
 
