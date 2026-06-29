@@ -226,7 +226,8 @@ document.addEventListener('click', function(e) {
 });
 
 logoutBtn.addEventListener('click', function() {
-    alert('Выход из аккаунта (демо)');
+    window.location.href = 'registration-view.html';
+    localStorage.clear();
     profileDropdown.classList.remove('active');
 });
 
