@@ -5,8 +5,8 @@ import httpx
 
 load_dotenv()
 
-class OpenRouterService:
 
+class OpenRouterService:
     async def answer_by_context(self, question: str, context: str) -> str:
         # First API call with reasoning
         key = os.getenv("OPENROUTER_API_KEY")
@@ -31,7 +31,7 @@ class OpenRouterService:
                         """,  # noqa: RUF001
                 }
             ],
-            "reasoning": {"enabled": True}
+            "reasoning": {"enabled": True},
         }
 
         async with httpx.AsyncClient() as client:
@@ -41,11 +41,10 @@ class OpenRouterService:
                     "Authorization": f"Bearer {key}",
                     "Content-Type": "application/json",
                 },
-                json=payload  # httpx автоматически сериализует в JSON
+                json=payload,  # httpx автоматически сериализует в JSON
             )
             data = response.json()
             return data["choices"][0]["message"]["content"]
 
 
-
-open_router=OpenRouterService()
+open_router = OpenRouterService()
