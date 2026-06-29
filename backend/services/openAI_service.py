@@ -26,7 +26,7 @@ class OpenAIService:
 
         Вопрос:
         {question}
-        """
+        """  # noqa: RUF001
 
         response = await self.client.responses.create(
             model=self.model,
