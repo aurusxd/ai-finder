@@ -10,3 +10,4 @@ class AiAnswerModel(BaseModel):
     context: str
     question: str
     answer: str
+    document_id: int

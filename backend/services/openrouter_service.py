@@ -34,7 +34,7 @@ class OpenRouterService:
             "reasoning": {"enabled": True},
         }
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=20.0) as client:
             response = await client.post(
                 url="https://openrouter.ai/api/v1/chat/completions",
                 headers={

@@ -41,12 +41,16 @@ class DocumentLoader:
 
             match path.suffix:
                 case ".pdf":
+                    log.info("Получил pdf файл")
                     loader = PyMuPDFLoader(str(path))
                 case ".txt":
-                    loader = TextLoader(str(path))
+                    log.info("Получил txt файл")
+                    loader = TextLoader(str(path), encoding="utf-8")
                 case ".docx":
+                    log.info("Получил docx файл")
                     loader = Docx2txtLoader(str(path))
                 case ".md":
+                    log.info("Получил md файл")
                     loader = TextLoader(str(path))
 
             docs = loader.load()
@@ -58,7 +62,7 @@ class DocumentLoader:
 
             chunks = text_splitter.split_documents(docs)
             for i, c in enumerate(chunks):
-                page_number = c.metadata.get("page")
+                page_number = c.metadata.get("page") or 0
                 doc_chunk = DocumentChunk(
                     text=c.page_content,
                     page=page_number,

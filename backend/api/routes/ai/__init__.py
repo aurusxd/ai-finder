@@ -92,6 +92,7 @@ async def generate_message_from_context(
             question=question,
             context=message_context,
             answer=message,
+            document_id=doc.id,
         )
 
     except httpx.ConnectError as exc:
