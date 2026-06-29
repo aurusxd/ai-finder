@@ -516,6 +516,30 @@ body {
     color: #c8d7f0;
 }
 
+.message-loader {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #6c6c70;
+    font-size: 14px;
+}
+
+.message-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #cfd6df;
+    border-top-color: #1a73e8;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: message-spin 0.8s linear infinite;
+}
+
+@keyframes message-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 
 .start-screen {
     flex: 1;

@@ -28,6 +28,52 @@ const selectedFilePreview = document.getElementById('selectedFilePreview');
 
 let selectedFile = null;
 
+function getMessageTime() {
+    const currentTime = new Date();
+    const hours = String(currentTime.getHours()).padStart(2, '0');
+    const minutes = String(currentTime.getMinutes()).padStart(2, '0');
+
+    return hours + ':' + minutes;
+}
+
+function addLoadingMessage() {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message gpt loading-message';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar gpt';
+    avatar.textContent = 'G';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+
+    const loader = document.createElement('div');
+    loader.className = 'message-loader';
+    loader.setAttribute('aria-label', 'AI думает');
+
+    const spinner = document.createElement('span');
+    spinner.className = 'message-spinner';
+
+    const text = document.createElement('span');
+    text.textContent = '';
+
+    const time = document.createElement('div');
+    time.className = 'message-time';
+    time.textContent = getMessageTime();
+
+    loader.appendChild(spinner);
+    loader.appendChild(text);
+    bubble.appendChild(loader);
+    bubble.appendChild(time);
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(bubble);
+
+    messagesArea.appendChild(messageDiv);
+    messagesArea.scrollTop = messagesArea.scrollHeight;
+
+    return messageDiv;
+}
+
 async function addMessage(text, isUser = false) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isUser ? 'user' : 'gpt'}`;
@@ -44,9 +90,7 @@ async function addMessage(text, isUser = false) {
 
     const time = document.createElement('div');
     time.className = 'message-time';
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    time.textContent = hours + ':' + minutes;
+    time.textContent = getMessageTime();
 
     bubble.appendChild(p);
     bubble.appendChild(time);
@@ -143,6 +187,8 @@ startAttachBtn.addEventListener('click', function() {
 });
 
 async function handleChatSend(query) {
+    let loadingMessage = null;
+
     try {
         const formData = new FormData();
         const messageText =
@@ -161,6 +207,7 @@ async function handleChatSend(query) {
 
         await addMessage(messageText, true);
         chatInput.value = '';
+        loadingMessage = addLoadingMessage();
 
         for (const pair of formData.entries()) {
             console.log(pair[0], pair[1]);
@@ -174,14 +221,19 @@ async function handleChatSend(query) {
 
         if (!response.ok) {
             console.error(await response.text());
+            loadingMessage.remove();
             return;
         }
 
         const data = await response.json();
         console.log(data);
+        loadingMessage.remove();
         await addMessage(data.answer, false);
 
     } catch (error) {
+        if (loadingMessage) {
+            loadingMessage.remove();
+        }
         console.error("Ошибка при отправке сообщения: ", error);
     }
 }
