@@ -1,16 +1,19 @@
 import unicodedata
 
 from anyio import Path as anyioPath
-from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_community.document_loaders import (
+    Docx2txtLoader,
+    PyMuPDFLoader,
+    TextLoader,
+)
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import Docx2txtLoader
-from langchain_community.document_loaders import TextLoader
+
 from backend.database.models.document import Document
 from backend.database.models.document_chunk import DocumentChunk
 from backend.log import log
 from backend.services.document_service import document_service as ds
 from depends import AsyncSession
-from pathlib import Path
+
 
 class DocumentLoader:
     async def document_loader(
@@ -35,7 +38,7 @@ class DocumentLoader:
             if not await path.exists():
                 msg = f"Файл не найден: {str(path)!r}"
                 raise FileNotFoundError(msg)
-            
+
             match path.suffix:
                 case ".pdf":
                     loader = PyMuPDFLoader(str(path))
@@ -45,7 +48,7 @@ class DocumentLoader:
                     loader = Docx2txtLoader(str(path))
                 case ".md":
                     loader = TextLoader(str(path))
-            
+
             docs = loader.load()
 
             text_splitter = RecursiveCharacterTextSplitter(
