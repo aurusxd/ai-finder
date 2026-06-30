@@ -41,6 +41,7 @@ async def generate_message_from_context(
     file: UploadFile | None = File(None),  # noqa: B008
 ):
     message_context = context
+    document_id = None
 
     try:
         if file:
@@ -67,6 +68,8 @@ async def generate_message_from_context(
             if doc is None:
                 raise HTTPException(status_code=500, detail="Document was not saved")
 
+            document_id = doc.id
+
             # loader должен читать именно сохранённый файл
             chunks = await loader_service.document_loader(doc.id, session)
 
@@ -76,7 +79,7 @@ async def generate_message_from_context(
                 chunks, document_name=collection_name
             )
 
-            # потом ищешь похожие чанки и собираешь context
+            # потом ищем похожие чанки и собираешь context
             found_chunks = await vector_store_service.find_vectors(
                 collection_name, question, 3
             )
@@ -92,7 +95,7 @@ async def generate_message_from_context(
             question=question,
             context=message_context,
             answer=message,
-            document_id=doc.id,
+            document_id=document_id,
         )
 
     except httpx.ConnectError as exc:

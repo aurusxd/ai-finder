@@ -1,8 +1,6 @@
-
 requireAuth();
 
 const auth = getAuth();
-console.log(auth);
 if (auth && auth.user) {
     document.getElementById('profileName').textContent = auth.user.username;
     document.getElementById('profileEmail').textContent = auth.user.email_address;
@@ -18,22 +16,150 @@ const chatInput = document.getElementById('chatInput');
 const chatSendBtn = document.getElementById('chatSendBtn');
 const newChatBtn = document.getElementById('newChatBtn');
 const attachBtn = document.getElementById('attachBtn');
-const now = new Date();
 const profileMenuBtn = document.getElementById('profileMenuBtn');
 const profileDropdown = document.getElementById('profileDropdown');
 const logoutBtn = document.getElementById('logoutBtn');
-const fileInput = document.getElementById("fileInput");
-const uploadBtn = document.getElementById("attachBtn");
+const fileInput = document.getElementById('fileInput');
 const selectedFilePreview = document.getElementById('selectedFilePreview');
+const chatHistoryList = document.getElementById('chatHistoryList');
+const chatTitle = document.querySelector('.chat-header h2');
 
 let selectedFile = null;
+let currentChatId = null;
+let chatHistory = [];
 
-function getMessageTime() {
-    const currentTime = new Date();
+function getMessageTime(value) {
+    const currentTime = value ? new Date(value) : new Date();
     const hours = String(currentTime.getHours()).padStart(2, '0');
     const minutes = String(currentTime.getMinutes()).padStart(2, '0');
 
     return hours + ':' + minutes;
+}
+
+function getChatTitle(chat) {
+    return 'Чат #' + chat.id;
+}
+
+function formatChatDate(value) {
+    if (!value) {
+        return '';
+    }
+
+    return new Intl.DateTimeFormat('ru-RU', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(new Date(value));
+}
+
+function setChatTitle(title) {
+    chatTitle.innerHTML = '';
+
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-comment-dots';
+    icon.style.marginRight = '10px';
+    icon.style.color = '#1a73e8';
+
+    chatTitle.appendChild(icon);
+    chatTitle.appendChild(document.createTextNode(title));
+}
+
+function setChatViewActive() {
+    startScreen.classList.add('hidden');
+    messagesArea.classList.remove('hidden');
+    chatInputArea.classList.add('active');
+}
+
+function setStartViewActive() {
+    startScreen.classList.remove('hidden');
+    messagesArea.classList.add('hidden');
+    chatInputArea.classList.remove('active');
+    messagesArea.innerHTML = '';
+    currentChatId = null;
+    setChatTitle('Новый чат');
+    renderChatHistory();
+}
+
+function renderChatHistory() {
+    chatHistoryList.innerHTML = '';
+
+    if (!chatHistory.length) {
+        const empty = document.createElement('div');
+        empty.className = 'chat-history-empty';
+        empty.textContent = 'Чатов пока нет';
+        chatHistoryList.appendChild(empty);
+        return;
+    }
+
+    chatHistory.forEach(function(chat) {
+        const item = document.createElement('button');
+        item.className = 'chat-history-item';
+        item.type = 'button';
+        item.dataset.chatId = chat.id;
+
+        if (chat.id === currentChatId) {
+            item.classList.add('active');
+        }
+
+        const name = document.createElement('span');
+        name.className = 'chat-history-name';
+        name.textContent = getChatTitle(chat);
+
+        const date = document.createElement('span');
+        date.className = 'chat-history-date';
+        date.textContent = formatChatDate(chat.created_at);
+
+        item.appendChild(name);
+        item.appendChild(date);
+        item.addEventListener('click', function() {
+            loadChat(chat.id);
+        });
+
+        chatHistoryList.appendChild(item);
+    });
+}
+
+async function loadChatHistory() {
+    try {
+        const response = await fetch(API_BASE_URL + '/chats/user/' + auth.user.id, {
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            console.error('Не удалось загрузить историю чатов', response);
+            return;
+        }
+
+        chatHistory = await response.json();
+        renderChatHistory();
+    } catch (error) {
+        console.error('Ошибка загрузки истории чатов:', error);
+    }
+}
+
+async function createChat() {
+    const response = await fetch(API_BASE_URL + '/chats/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+            user_id: auth.user.id,
+            created_at: new Date().toISOString(),
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error('Не удалось создать чат');
+    }
+
+    const chat = await response.json();
+    currentChatId = chat.id;
+    setChatTitle(getChatTitle(chat));
+    await loadChatHistory();
+    return chat;
 }
 
 function addLoadingMessage() {
@@ -74,13 +200,13 @@ function addLoadingMessage() {
     return messageDiv;
 }
 
-async function addMessage(text, isUser = false) {
+function renderMessage(text, isUser = false, createdAt = null) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isUser ? 'user' : 'gpt'}`;
 
     const avatar = document.createElement('div');
     avatar.className = `message-avatar ${isUser ? 'user' : 'gpt'}`;
-    avatar.textContent = isUser ? '👤' : 'G';
+    avatar.textContent = isUser ? 'Вы' : 'G';
 
     const bubble = document.createElement('div');
     bubble.className = 'message-bubble';
@@ -90,7 +216,7 @@ async function addMessage(text, isUser = false) {
 
     const time = document.createElement('div');
     time.className = 'message-time';
-    time.textContent = getMessageTime();
+    time.textContent = getMessageTime(createdAt);
 
     bubble.appendChild(p);
     bubble.appendChild(time);
@@ -99,68 +225,88 @@ async function addMessage(text, isUser = false) {
 
     messagesArea.appendChild(messageDiv);
     messagesArea.scrollTop = messagesArea.scrollHeight;
-        try {
-            const response = await fetch(API_BASE_URL + '/messages/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                    content: text,
-                    role:  isUser ? 'user' : 'gpt',
-                    created_at: now,
-                    chat_id: 1
-                }),
-            });
-            if(!response.ok){
-                console.error("Ошибка выполнения запроса",response)
-            }
-        } catch (error){
-            console.error(error);
-        }
 }
 
+async function addMessage(text, isUser = false) {
+    renderMessage(text, isUser);
+
+    if (!currentChatId) {
+        return;
+    }
+
+    try {
+        const response = await fetch(API_BASE_URL + '/messages/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                content: text,
+                role: isUser ? 'user' : 'gpt',
+                created_at: new Date().toISOString(),
+                chat_id: currentChatId,
+            }),
+        });
+
+        if (!response.ok) {
+            console.error('Ошибка выполнения запроса', response);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 async function openChat(query) {
-
-    startScreen.classList.add('hidden');
-    messagesArea.classList.remove('hidden');
-    chatInputArea.classList.add('active');
-
+    setChatViewActive();
     messagesArea.innerHTML = '';
 
-            try {
-            const user = getAuth();
-            console.log(user)
-            const response = await fetch(API_BASE_URL + '/chats/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                    user_id: user.user.id,
-                    created_at: now,
-      
-                }),
-            });
-            if(!response.ok){
-                console.error("Ошибка выполнения запроса: ",response)
-            }
-            console.log(response);
-            } catch (error){
-                console.error(error);
-            }
-
-    handleChatSend(query);
-
-    
+    try {
+        await createChat();
+        await handleChatSend(query);
+    } catch (error) {
+        console.error(error);
+    }
 
     chatInput.value = '';
     chatInput.focus();
 }
 
+async function loadChat(chatId) {
+    currentChatId = Number(chatId);
+    setChatViewActive();
+    messagesArea.innerHTML = '';
+
+    const chat = chatHistory.find(function(item) {
+        return item.id === currentChatId;
+    });
+
+    setChatTitle(chat ? getChatTitle(chat) : 'Чат');
+    renderChatHistory();
+
+    try {
+        const response = await fetch(API_BASE_URL + '/messages/chat/' + currentChatId, {
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            console.error('Не удалось загрузить сообщения чата', response);
+            return;
+        }
+
+        const messages = await response.json();
+        messagesArea.innerHTML = '';
+
+        messages.forEach(function(message) {
+            renderMessage(message.content, message.role === 'user', message.created_at);
+        });
+
+        chatInput.value = '';
+        chatInput.focus();
+    } catch (error) {
+        console.error('Ошибка загрузки сообщений чата:', error);
+    }
+}
 
 function handleStartSend() {
     const query = startInput.value.trim();
@@ -173,6 +319,7 @@ startSendBtn.addEventListener('click', function(e) {
     e.preventDefault();
     handleStartSend();
 });
+
 startInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault();
@@ -180,10 +327,8 @@ startInput.addEventListener('keydown', function(e) {
     }
 });
 
-
 startAttachBtn.addEventListener('click', function() {
     fileInput.click();
-
 });
 
 async function handleChatSend(query) {
@@ -194,6 +339,14 @@ async function handleChatSend(query) {
         const messageText =
             typeof query === 'string' ? query.trim() : chatInput.value.trim();
 
+        if (!messageText) {
+            return;
+        }
+
+        if (!currentChatId) {
+            await createChat();
+        }
+
         formData.append('question', messageText);
         formData.append('user_id', auth.user.id);
 
@@ -201,17 +354,9 @@ async function handleChatSend(query) {
             formData.append('file', selectedFile);
         }
 
-        if (!messageText) {
-            return;
-        }
-
         await addMessage(messageText, true);
         chatInput.value = '';
         loadingMessage = addLoadingMessage();
-
-        for (const pair of formData.entries()) {
-            console.log(pair[0], pair[1]);
-        }
 
         const response = await fetch(API_BASE_URL + '/ai/ask', {
             method: 'POST',
@@ -226,15 +371,14 @@ async function handleChatSend(query) {
         }
 
         const data = await response.json();
-        console.log(data);
         loadingMessage.remove();
         await addMessage(data.answer, false);
-
+        await loadChatHistory();
     } catch (error) {
         if (loadingMessage) {
             loadingMessage.remove();
         }
-        console.error("Ошибка при отправке сообщения: ", error);
+        console.error('Ошибка при отправке сообщения: ', error);
     }
 }
 
@@ -242,6 +386,7 @@ chatSendBtn.addEventListener('click', function(e) {
     e.preventDefault();
     handleChatSend();
 });
+
 chatInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault();
@@ -249,27 +394,20 @@ chatInput.addEventListener('keydown', function(e) {
     }
 });
 
-
 attachBtn.addEventListener('click', function() {
     fileInput.click();
-
 });
 
-
 newChatBtn.addEventListener('click', function() {
-    startScreen.classList.remove('hidden');
-    messagesArea.classList.add('hidden');
-    chatInputArea.classList.remove('active');
+    setStartViewActive();
     startInput.value = '';
     startInput.focus();
 });
-
 
 profileMenuBtn.addEventListener('click', function(e) {
     e.stopPropagation();
     profileDropdown.classList.toggle('active');
 });
-
 
 document.addEventListener('click', function(e) {
     if (!profileMenuBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
@@ -283,7 +421,7 @@ logoutBtn.addEventListener('click', function() {
     profileDropdown.classList.remove('active');
 });
 
-fileInput.addEventListener('change', function (e) {
+fileInput.addEventListener('change', function(e) {
     selectedFile = e.target.files[0];
 
     if (!selectedFile) {
@@ -292,11 +430,11 @@ fileInput.addEventListener('change', function (e) {
 
     selectedFilePreview.classList.remove('hidden');
     selectedFilePreview.innerHTML = `
-        <span>📄 ${selectedFile.name}</span>
-        <button class="file-remove-btn" type="button" id="removeFileBtn">×</button>
+        <span>Документ: ${selectedFile.name}</span>
+        <button class="file-remove-btn" type="button" id="removeFileBtn">x</button>
     `;
 
-    document.getElementById('removeFileBtn').addEventListener('click', function () {
+    document.getElementById('removeFileBtn').addEventListener('click', function() {
         selectedFile = null;
         fileInput.value = '';
         selectedFilePreview.classList.add('hidden');
@@ -304,4 +442,5 @@ fileInput.addEventListener('change', function (e) {
     });
 });
 
+loadChatHistory();
 startInput.focus();
