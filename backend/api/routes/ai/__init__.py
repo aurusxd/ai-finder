@@ -33,7 +33,7 @@ UPLOAD_DIR = Path("uploads")
         409: {"description": "Document with this name already exists"},
     },
 )
-async def generate_message_from_context(
+async def generate_message_from_context(  # noqa: PLR0913
     session: Annotated[AsyncSession, Depends(provider.get_session)],
     question: str = Form(...),
     user_id: int = Form(...),
