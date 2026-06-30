@@ -221,6 +221,7 @@ Windows:
 ```bash
 pip install uv
 uv sync
+cp .env.example .env 
 ```
 
 ### Установка моделей Ollama
