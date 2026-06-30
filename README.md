@@ -58,7 +58,7 @@
 * FastAPI
 * SQLAlchemy
 * Alembic
-* pymupdf(PDF),python-docx(docx) ИЛИ LangChain (я еще не решил)
+* LangChain
 
 ### AI и RAG
 
@@ -91,19 +91,16 @@
 ## 📂 Структура проекта
 
 ```text
-app/
+backend/
 ├── api/
-├── services/
-│   ├── rag_service.py
-│   ├── embedding_service.py
-│   ├── ollama_service.py
-│   └── document_service.py
-├── models/
-├── repositories/
+├── database/
+│   
+├── logs/
+├── 
 ├── schemas/
-├── templates/
-├── static/
-└── main.py
+├── services/
+config/
+frontend/
 ```
 
 ---
@@ -229,7 +226,7 @@ uv sync
 ### Установка моделей Ollama
 
 ```bash
-ollama pull llama3.1
+ollama pull qwen3 / llama3.1
 ollama pull nomic-embed-text
 ```
 
