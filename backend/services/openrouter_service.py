@@ -12,7 +12,7 @@ class OpenRouterService:
         key = os.getenv("OPENROUTER_API_KEY")
 
         payload = {
-            "model": "google/gemma-4-26b-a4b-it:free",
+            "model": "nvidia/nemotron-3.5-content-safety:free",
             "messages": [
                 {
                     "role": "user",

@@ -23,10 +23,13 @@ const fileInput = document.getElementById('fileInput');
 const selectedFilePreview = document.getElementById('selectedFilePreview');
 const chatHistoryList = document.getElementById('chatHistoryList');
 const chatTitle = document.querySelector('.chat-header h2');
+const CHAT_DOCUMENTS_STORAGE_KEY = 'ai_finder_chat_documents';
 
 let selectedFile = null;
 let currentChatId = null;
+let currentDocumentId = null;
 let chatHistory = [];
+let chatDocuments = loadChatDocuments();
 
 function getMessageTime(value) {
     const currentTime = value ? new Date(value) : new Date();
@@ -83,6 +86,83 @@ function escapeHtml(value) {
         .replaceAll("'", '&#039;');
 }
 
+function loadChatDocuments() {
+    const raw = localStorage.getItem(CHAT_DOCUMENTS_STORAGE_KEY);
+
+    if (!raw) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(raw);
+    } catch {
+        return {};
+    }
+}
+
+function saveChatDocuments() {
+    localStorage.setItem(CHAT_DOCUMENTS_STORAGE_KEY, JSON.stringify(chatDocuments));
+}
+
+function getChatDocument(chatId) {
+    const value = chatDocuments[String(chatId)];
+
+    if (!value) {
+        return null;
+    }
+
+    if (typeof value === 'number') {
+        return { id: value };
+    }
+
+    return value;
+}
+
+function setChatDocument(chatId, documentInfo) {
+    if (!chatId) {
+        return;
+    }
+
+    if (!documentInfo || !documentInfo.id) {
+        delete chatDocuments[String(chatId)];
+    } else {
+        chatDocuments[String(chatId)] = documentInfo;
+    }
+
+    saveChatDocuments();
+}
+
+function renderDocumentPreview(documentInfo) {
+    if (!documentInfo) {
+        selectedFilePreview.classList.add('hidden');
+        selectedFilePreview.innerHTML = '';
+        return;
+    }
+
+    const name = documentInfo.name || ('Документ #' + documentInfo.id);
+    const meta = documentInfo.pending
+        ? formatFileSize(documentInfo.size)
+        : 'Документ подключен';
+
+    selectedFilePreview.classList.remove('hidden');
+    selectedFilePreview.innerHTML = `
+        <div class="file-preview-icon" aria-hidden="true">📄</div>
+        <div class="file-preview-info">
+            <span class="file-preview-name">${escapeHtml(name)}</span>
+            <span class="file-preview-meta">${escapeHtml(meta)}</span>
+        </div>
+        <button class="file-remove-btn" type="button" id="removeFileBtn" aria-label="Убрать файл">×</button>
+    `;
+
+    document.getElementById('removeFileBtn').addEventListener('click', function() {
+        selectedFile = null;
+        currentDocumentId = null;
+        fileInput.value = '';
+        setChatDocument(currentChatId, null);
+        renderDocumentPreview(null);
+    });
+}
+
 function setChatTitle(title) {
     chatTitle.innerHTML = '';
 
@@ -107,6 +187,10 @@ function setStartViewActive() {
     chatInputArea.classList.remove('active');
     messagesArea.innerHTML = '';
     currentChatId = null;
+    currentDocumentId = null;
+    selectedFile = null;
+    fileInput.value = '';
+    renderDocumentPreview(null);
     setChatTitle('Новый чат');
     renderChatHistory();
 }
@@ -187,6 +271,7 @@ async function createChat() {
 
     const chat = await response.json();
     currentChatId = chat.id;
+    currentDocumentId = null;
     setChatTitle(getChatTitle(chat));
     await loadChatHistory();
     return chat;
@@ -304,6 +389,12 @@ async function openChat(query) {
 
 async function loadChat(chatId) {
     currentChatId = Number(chatId);
+    selectedFile = null;
+    fileInput.value = '';
+
+    const chatDocument = getChatDocument(currentChatId);
+    currentDocumentId = chatDocument ? chatDocument.id : null;
+    renderDocumentPreview(chatDocument);
     setChatViewActive();
     messagesArea.innerHTML = '';
 
@@ -363,6 +454,7 @@ startAttachBtn.addEventListener('click', function() {
 
 async function handleChatSend(query) {
     let loadingMessage = null;
+    let uploadedFile = null;
 
     try {
         const formData = new FormData();
@@ -381,7 +473,10 @@ async function handleChatSend(query) {
         formData.append('user_id', auth.user.id);
 
         if (selectedFile) {
+            uploadedFile = selectedFile;
             formData.append('file', selectedFile);
+        } else if (currentDocumentId) {
+            formData.append('document_id', currentDocumentId);
         }
 
         await addMessage(messageText, true);
@@ -402,6 +497,20 @@ async function handleChatSend(query) {
 
         const data = await response.json();
         loadingMessage.remove();
+
+        if (data.document_id) {
+            const existingDocument = getChatDocument(currentChatId);
+            currentDocumentId = data.document_id;
+            selectedFile = null;
+            fileInput.value = '';
+            setChatDocument(currentChatId, {
+                id: data.document_id,
+                name: uploadedFile ? uploadedFile.name : existingDocument?.name,
+                size: uploadedFile ? uploadedFile.size : existingDocument?.size,
+            });
+            renderDocumentPreview(getChatDocument(currentChatId));
+        }
+
         await addMessage(data.answer, false);
         await loadChatHistory();
     } catch (error) {
@@ -458,21 +567,12 @@ fileInput.addEventListener('change', function(e) {
         return;
     }
 
-    selectedFilePreview.classList.remove('hidden');
-    selectedFilePreview.innerHTML = `
-        <div class="file-preview-icon" aria-hidden="true">📄</div>
-        <div class="file-preview-info">
-            <span class="file-preview-name">${escapeHtml(selectedFile.name)}</span>
-            <span class="file-preview-meta">${formatFileSize(selectedFile.size)}</span>
-        </div>
-        <button class="file-remove-btn" type="button" id="removeFileBtn" aria-label="Убрать файл">×</button>
-    `;
-
-    document.getElementById('removeFileBtn').addEventListener('click', function() {
-        selectedFile = null;
-        fileInput.value = '';
-        selectedFilePreview.classList.add('hidden');
-        selectedFilePreview.innerHTML = '';
+    currentDocumentId = null;
+    setChatDocument(currentChatId, null);
+    renderDocumentPreview({
+        name: selectedFile.name,
+        size: selectedFile.size,
+        pending: true,
     });
 });
 
