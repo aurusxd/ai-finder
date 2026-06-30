@@ -17,7 +17,6 @@ class ChatService:
         created_at: datetime = datetime.utcnow(),  # noqa: B008, DTZ003
         session: AsyncSession | None = None,
     ) -> Chat:
-        # Исправлено: используем именованные аргументы
         chat = Chat(user_id=user_id, created_at=created_at)
         try:
             session.add(chat)

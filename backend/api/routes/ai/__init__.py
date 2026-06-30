@@ -33,15 +33,16 @@ UPLOAD_DIR = Path("uploads")
         409: {"description": "Document with this name already exists"},
     },
 )
-async def generate_message_from_context(
+async def generate_message_from_context(  # noqa: PLR0913
     session: Annotated[AsyncSession, Depends(provider.get_session)],
     question: str = Form(...),
     user_id: int = Form(...),
     context: str = Form(""),
+    document_id: int | None = Form(None),
     file: UploadFile | None = File(None),  # noqa: B008
 ):
     message_context = context
-    document_id = None
+    active_document_id = document_id
 
     try:
         if file:
@@ -68,7 +69,7 @@ async def generate_message_from_context(
             if doc is None:
                 raise HTTPException(status_code=500, detail="Document was not saved")
 
-            document_id = doc.id
+            active_document_id = doc.id
 
             # loader должен читать именно сохранённый файл
             chunks = await loader_service.document_loader(doc.id, session)
@@ -84,8 +85,22 @@ async def generate_message_from_context(
                 collection_name, question, 3
             )
             message_context = "\n\n".join(chunk.page_content for chunk in found_chunks)
+        elif active_document_id:
+            doc = await document_service.get_document_by_id(
+                active_document_id,
+                session=session,
+            )
 
-        message = await open_router.answer_by_context(
+            if doc is None or doc.user_id != user_id:
+                raise HTTPException(status_code=404, detail="Document was not found")
+
+            collection_name = f"document_{active_document_id}"
+            found_chunks = await vector_store_service.find_vectors(
+                collection_name, question, 3
+            )
+            message_context = "\n\n".join(chunk.page_content for chunk in found_chunks)
+
+        message = await ollama_service.answer_by_context(
             question=question,
             context=message_context,
         )
@@ -95,7 +110,7 @@ async def generate_message_from_context(
             question=question,
             context=message_context,
             answer=message,
-            document_id=document_id,
+            document_id=active_document_id,
         )
 
     except httpx.ConnectError as exc:
