@@ -53,6 +53,36 @@ function formatChatDate(value) {
     }).format(new Date(value));
 }
 
+function formatFileSize(bytes) {
+    if (!Number.isFinite(bytes) || bytes <= 0) {
+        return 'Размер неизвестен';
+    }
+
+    const units = ['Б', 'КБ', 'МБ', 'ГБ'];
+    let size = bytes;
+    let unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex += 1;
+    }
+
+    const formattedSize = size >= 10 || unitIndex === 0
+        ? Math.round(size)
+        : size.toFixed(1);
+
+    return formattedSize + ' ' + units[unitIndex];
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
 function setChatTitle(title) {
     chatTitle.innerHTML = '';
 
@@ -430,8 +460,12 @@ fileInput.addEventListener('change', function(e) {
 
     selectedFilePreview.classList.remove('hidden');
     selectedFilePreview.innerHTML = `
-        <span>Документ: ${selectedFile.name}</span>
-        <button class="file-remove-btn" type="button" id="removeFileBtn">x</button>
+        <div class="file-preview-icon" aria-hidden="true">📄</div>
+        <div class="file-preview-info">
+            <span class="file-preview-name">${escapeHtml(selectedFile.name)}</span>
+            <span class="file-preview-meta">${formatFileSize(selectedFile.size)}</span>
+        </div>
+        <button class="file-remove-btn" type="button" id="removeFileBtn" aria-label="Убрать файл">×</button>
     `;
 
     document.getElementById('removeFileBtn').addEventListener('click', function() {
