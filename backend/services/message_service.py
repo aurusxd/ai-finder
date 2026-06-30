@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,6 +26,19 @@ class MessageService:
         except SQLAlchemyError as e:
             log.exception("Ошибка создания сообщения: ", e)
             raise
+
+    @provider.inject_session
+    async def get_chat_messages(
+        self,
+        chat_id: int,
+        session: AsyncSession | None = None,
+    ) -> list[Message]:
+        result = await session.execute(
+            select(Message)
+            .where(Message.chat_id == chat_id)
+            .order_by(Message.created_at, Message.id)
+        )
+        return list(result.scalars().all())
 
 
 message_service = MessageService()

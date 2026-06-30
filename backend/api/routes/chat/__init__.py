@@ -1,12 +1,7 @@
-from typing import Annotated
+from fastapi import APIRouter
 
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from backend.schemas.ai_schema import AiAnswerModel, AiModel
-from backend.schemas.chat_schema import ChatModel
+from backend.schemas.chat_schema import ChatCreateModel, ChatModel
 from backend.services.chat_service import chat_service
-from depends import provider
 
 router = APIRouter(tags=["chat"], prefix="/chats")
 
@@ -25,8 +20,19 @@ router = APIRouter(tags=["chat"], prefix="/chats")
     },
 )
 async def create_a_new_chat(
-    data: ChatModel,
+    data: ChatCreateModel,
     # current_user: Annotated[User, Depends(security.get_current_user)],
 ):
     chat = await chat_service.create_chat(data.user_id, data.created_at)
     return ChatModel.model_validate(chat, from_attributes=True)
+
+
+@router.get(
+    "/user/{user_id}",
+    response_model=list[ChatModel],
+    summary="Get user chats",
+    description="Get chat history for a user",
+)
+async def get_user_chats(user_id: int):
+    chats = await chat_service.get_user_chats(user_id)
+    return [ChatModel.model_validate(chat, from_attributes=True) for chat in chats]

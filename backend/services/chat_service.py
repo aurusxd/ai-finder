@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from sqlalchemy import desc, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,6 +28,19 @@ class ChatService:
         except SQLAlchemyError as e:
             log.exception("Ошибка создания чата: ", e)
             raise
+
+    @provider.inject_session
+    async def get_user_chats(
+        self,
+        user_id: int,
+        session: AsyncSession | None = None,
+    ) -> list[Chat]:
+        result = await session.execute(
+            select(Chat)
+            .where(Chat.user_id == user_id)
+            .order_by(desc(Chat.created_at), desc(Chat.id))
+        )
+        return list(result.scalars().all())
 
 
 chat_service = ChatService()

@@ -1,11 +1,7 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter
 
 from backend.schemas.message_schema import MessageCreateModel, MessageModel
 from backend.services.message_service import message_service
-from depends import provider
 
 router = APIRouter(tags=["message"], prefix="/messages")
 
@@ -32,3 +28,17 @@ async def create_new_message(
     )
 
     return MessageModel.model_validate(message, from_attributes=True)
+
+
+@router.get(
+    "/chat/{chat_id}",
+    response_model=list[MessageModel],
+    summary="Get chat messages",
+    description="Get messages for a chat",
+)
+async def get_chat_messages(chat_id: int):
+    messages = await message_service.get_chat_messages(chat_id)
+    return [
+        MessageModel.model_validate(message, from_attributes=True)
+        for message in messages
+    ]
